@@ -1,8 +1,9 @@
 package com.example.opsc7311_poe
 
+import android.content.Intent
 import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
+import com.example.opsc7311_poe.databinding.ActivityMainBinding
+import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -12,20 +13,30 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.opsc7311_poe.ui.theme.OPSC7311_POETheme
 
-class MainActivity : ComponentActivity() {
+class MainActivity : AppCompatActivity() {
+    private lateinit var binding: ActivityMainBinding
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContent {
-            OPSC7311_POETheme {
-                // A surface container using the 'background' color from the theme
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
-                ) {
-                    Greeting("Android")
-                }
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
+        binding.btnLogin.setOnClickListener {
+            if (validateLogin(binding.etUsername.text.toString(), binding.etPassword.text.toString())) {
+                startActivity(Intent(this, DashboardActivity::class.java))
+            } else {
+                binding.tvStatus.text = "Invalid credentials, try again!"
             }
         }
+
+        binding.btnRegister.setOnClickListener {
+            startActivity(Intent(this, RegistrationActivity::class.java))
+        }
+    }
+
+    private fun validateLogin(username: String, password: String): Boolean {
+        // Placeholder for actual validation logic
+        return username == "admin" && password == "admin"
     }
 }
 

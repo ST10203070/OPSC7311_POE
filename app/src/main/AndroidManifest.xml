@@ -13,6 +13,24 @@
         android:theme="@style/Theme.OPSC7311_POE"
         tools:targetApi="31">
         <activity
+            android:name=".CategorySummaryActivity"
+            android:exported="false" />
+        <activity
+            android:name=".TimesheetListActivity"
+            android:exported="false" />
+        <activity
+            android:name=".GoalSettingActivity"
+            android:exported="false" />
+        <activity
+            android:name=".TimeEntryActivity"
+            android:exported="false" />
+        <activity
+            android:name=".DashboardActivity"
+            android:exported="false" />
+        <activity
+            android:name=".RegistrationActivity"
+            android:exported="false" />
+        <activity
             android:name=".MainActivity"
             android:exported="true"
             android:label="@string/app_name"
