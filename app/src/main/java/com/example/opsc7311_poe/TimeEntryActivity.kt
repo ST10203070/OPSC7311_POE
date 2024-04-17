@@ -4,11 +4,13 @@ import android.app.DatePickerDialog
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import com.example.opsc7311_poe.databinding.ActivityTimeEntryBinding
+import com.google.firebase.Firebase
+import com.google.firebase.firestore.firestore
 import java.util.Calendar
 
 class TimeEntryActivity : AppCompatActivity() {
     private lateinit var binding: ActivityTimeEntryBinding
-
+    val db = Firebase.firestore
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityTimeEntryBinding.inflate(layoutInflater)
