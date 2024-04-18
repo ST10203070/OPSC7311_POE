@@ -10,7 +10,7 @@ import java.util.Calendar
 
 class TimeEntryActivity : AppCompatActivity() {
     private lateinit var binding: ActivityTimeEntryBinding
-    val db = Firebase.firestore
+    private val firestoreRepository = FirestoreRepository()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityTimeEntryBinding.inflate(layoutInflater)
@@ -37,3 +37,10 @@ class TimeEntryActivity : AppCompatActivity() {
         finish() // Close this activity after saving
     }
 }
+
+//NYASHA
+//Implement category management functionality, including UI and logic for creating categories.
+
+//CAM
+//Implement the functionality for users to create new timesheet entries, specifying the date, start and end times, description, and category.
+//-Implement the optional feature to add a photograph to each timesheet entry.

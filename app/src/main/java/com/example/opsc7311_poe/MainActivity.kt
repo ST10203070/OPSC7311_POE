@@ -17,7 +17,8 @@ import com.google.firebase.firestore.firestore
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
-    val db = Firebase.firestore
+    private val firestoreRepository = FirestoreRepository()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -25,7 +26,7 @@ class MainActivity : AppCompatActivity() {
 
         binding.btnLogin.setOnClickListener {
             if (validateLogin(binding.etUsername.text.toString(), binding.etPassword.text.toString())) {
-                startActivity(Intent(this, DashboardActivity::class.java))
+                startActivity(Intent(this, RegistrationActivity::class.java))
             } else {
                 binding.tvStatus.text = "Invalid credentials, try again!"
             }
@@ -57,3 +58,6 @@ fun GreetingPreview() {
         Greeting("Android")
     }
 }
+
+//MAX
+//Implement registration and login

@@ -8,7 +8,7 @@ import com.google.firebase.firestore.firestore
 
 class RegistrationActivity : AppCompatActivity() {
     private lateinit var binding: ActivityRegistrationBinding
-    val db = Firebase.firestore
+    private val firestoreRepository = FirestoreRepository()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityRegistrationBinding.inflate(layoutInflater)
@@ -25,6 +25,11 @@ class RegistrationActivity : AppCompatActivity() {
 
     private fun registerUser(username: String, password: String): Boolean {
         // Placeholder for registration logic
+
+        //Logic to add user to User table through FirestoreRepository class
+        /*val user = User("exampleUsername", "examplePassword", 4.5, 8.0)
+        firestoreRepository.addUser(user)*/
+
         return true
     }
 }
