@@ -2,6 +2,7 @@ package com.example.opsc7311_poe
 
 import android.content.Intent
 import android.os.Bundle
+import android.widget.Toast
 import com.example.opsc7311_poe.databinding.ActivityMainBinding
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.layout.fillMaxSize
@@ -28,11 +29,11 @@ class MainActivity : AppCompatActivity() {
             if (validateLogin(binding.etUsername.text.toString(), binding.etPassword.text.toString())) {
                 startActivity(Intent(this, RegistrationActivity::class.java))
             } else {
-                binding.tvStatus.text = "Invalid credentials, try again!"
+                Toast.makeText(this, "Invalid credentials, try again!", Toast.LENGTH_SHORT).show()
             }
         }
 
-        binding.btnRegister.setOnClickListener {
+        binding.tvRegisterLink.setOnClickListener {
             startActivity(Intent(this, RegistrationActivity::class.java))
         }
     }
