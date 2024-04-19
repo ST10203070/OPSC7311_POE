@@ -1,6 +1,7 @@
 package com.example.opsc7311_poe
 
 import android.os.Bundle
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.opsc7311_poe.databinding.ActivityRegistrationBinding
 import com.google.firebase.Firebase
@@ -14,22 +15,49 @@ class RegistrationActivity : AppCompatActivity() {
         binding = ActivityRegistrationBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        binding.btnSubmit.setOnClickListener {
-            if (registerUser(binding.etUsername.text.toString(), binding.etPassword.text.toString())) {
-                finish() // Closes the activity and returns to the previous screen (MainActivity)
+        binding.btnRegister.setOnClickListener {
+            // Disable the button to prevent multiple clicks
+            binding.btnRegister.isEnabled = false
+
+            val username = binding.etUsername.text.toString()
+            val password = binding.etPassword.text.toString()
+
+            // Check if the fields are not empty
+            if (username.isNotBlank() && password.isNotBlank()) {
+                // Call the registerUser method and handle the registration logic
+                registerUser(username, password)
             } else {
-                binding.tvStatus.text = "Registration failed, try a different username!"
+                Toast.makeText(this, "Please fill in all the fields", Toast.LENGTH_SHORT).show()
+                // Re-enable the button if the fields are empty
+                binding.btnRegister.isEnabled = true
             }
         }
     }
 
-    private fun registerUser(username: String, password: String): Boolean {
-        // Placeholder for registration logic
-
-        //Logic to add user to User table through FirestoreRepository class
-        /*val user = User("exampleUsername", "examplePassword", 4.5, 8.0)
-        firestoreRepository.addUser(user)*/
-
-        return true
+    private fun registerUser(username: String, password: String) {
+        firestoreRepository.userExists(username) { exists ->
+            if (!exists) {
+                val newUser = User(username, password)
+                firestoreRepository.addUser(newUser) { success ->
+                    runOnUiThread {
+                        if (success) {
+                            Toast.makeText(this, "Registration successful!", Toast.LENGTH_SHORT).show()
+                            finish() // Closes the activity and returns to the previous screen (MainActivity)
+                        } else {
+                            Toast.makeText(this, "Failed to register. Please try again later.", Toast.LENGTH_SHORT).show()
+                            // Re-enable the button if registration failed
+                            binding.btnRegister.isEnabled = true
+                        }
+                    }
+                }
+            } else {
+                runOnUiThread {
+                    Toast.makeText(this, "Username already taken, choose another!", Toast.LENGTH_SHORT).show()
+                    // Re-enable the button if the username is taken
+                    binding.btnRegister.isEnabled = true
+                }
+            }
+        }
     }
+
 }

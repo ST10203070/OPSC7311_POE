@@ -2,4 +2,5 @@
 <resources>
 
     <style name="Theme.OPSC7311_POE" parent="android:Theme.Material.Light.NoActionBar" />
+    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar" />
 </resources>

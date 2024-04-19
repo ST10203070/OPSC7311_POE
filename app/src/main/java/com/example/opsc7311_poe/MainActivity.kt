@@ -25,39 +25,47 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        //Login button click listener
         binding.btnLogin.setOnClickListener {
-            if (validateLogin(binding.etUsername.text.toString(), binding.etPassword.text.toString())) {
-                startActivity(Intent(this, RegistrationActivity::class.java))
-            } else {
-                Toast.makeText(this, "Invalid credentials, try again!", Toast.LENGTH_SHORT).show()
+            val username = binding.etUsername.text.toString()
+            val password = binding.etPassword.text.toString()
+
+            // Basic input validation
+            if (username.isBlank() || password.isBlank()) {
+                Toast.makeText(this, "Please enter both username and password.", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
             }
+
+            // Validate login with Firestore
+            validateLogin(username, password)
         }
 
+        //Register link click listener
         binding.tvRegisterLink.setOnClickListener {
             startActivity(Intent(this, RegistrationActivity::class.java))
         }
     }
 
-    private fun validateLogin(username: String, password: String): Boolean {
-        // Placeholder for actual validation logic
-        return username == "admin" && password == "admin"
+    //Method to validate login
+    private fun validateLogin(username: String, password: String) {
+        firestoreRepository.getUser(username) { user ->
+            if (user != null && user.password == password) {
+                // Password matches, proceed to login
+                runOnUiThread {
+                    Toast.makeText(this, "Login successful!", Toast.LENGTH_SHORT).show()
+                    //Redirecting to Time Entry screen
+                    startActivity(Intent(this, TimeEntryActivity::class.java))
+                }
+            } else {
+                // User doesn't exist or password doesn't match
+                runOnUiThread {
+                    Toast.makeText(this, "Invalid credentials, try again!", Toast.LENGTH_SHORT)
+                        .show()
+                }
+            }
+        }
     }
-}
 
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    OPSC7311_POETheme {
-        Greeting("Android")
-    }
 }
 
 //MAX
