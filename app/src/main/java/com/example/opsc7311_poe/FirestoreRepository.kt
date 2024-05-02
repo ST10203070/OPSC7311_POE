@@ -2,8 +2,11 @@ package com.example.opsc7311_poe
 
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.firestore
+import android.widget.Toast
+import android.content.Context
 
-class FirestoreRepository {
+
+class FirestoreRepository(private val context: Context) {
     private val db = Firebase.firestore
 
     fun createTables() {
@@ -77,7 +80,11 @@ class FirestoreRepository {
     }
 
     // Update a time entry in Firestore
-    fun updateTimeEntry(timeEntryId: String, updatedTimeEntry: TimeEntry, callback: (Boolean) -> Unit) {
+    fun updateTimeEntry(
+        timeEntryId: String,
+        updatedTimeEntry: TimeEntry,
+        callback: (Boolean) -> Unit
+    ) {
         val timeEntryRef = db.collection("timeEntries").document(timeEntryId)
         timeEntryRef.set(updatedTimeEntry)
             .addOnSuccessListener {
@@ -87,6 +94,7 @@ class FirestoreRepository {
                 callback(false)
             }
     }
+
     // Delete a time entry from Firestore
     fun deleteTimeEntry(timeEntryId: String, callback: (Boolean) -> Unit) {
         val timeEntryRef = db.collection("timeEntries").document(timeEntryId)
@@ -111,5 +119,35 @@ class FirestoreRepository {
             }
     }
 
-    // Add more methods as needed for read, update, delete operations
+    // Add method to save goals within FirestoreRepository
+    fun saveUserGoals(
+        userId: String,
+        minGoal: Double,
+        maxGoal: Double,
+        onSuccess: () -> Unit,
+        onFailure: (Exception) -> Unit
+    ) {
+        val goalsData = hashMapOf(
+            "minGoal" to minGoal,
+            "maxGoal" to maxGoal,
+            "timestamp" to System.currentTimeMillis()
+        )
+
+
+        db.collection("users").document(userId).collection("goals").document("current")
+            .set(goalsData)
+            .addOnSuccessListener {
+                Toast.makeText(context, "Goals saved successfully", Toast.LENGTH_SHORT).show()
+                onSuccess()
+            }
+            .addOnFailureListener { exception ->
+                Toast.makeText(
+                    context,
+                    "Failed to save goals: ${exception.message}",
+                    Toast.LENGTH_SHORT
+                ).show()
+                onFailure(exception)
+            }
+    }
 }
+    // Add more methods as needed for read, update, delete operations

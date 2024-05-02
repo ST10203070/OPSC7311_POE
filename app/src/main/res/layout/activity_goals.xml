@@ -6,4 +6,115 @@
     android:layout_height="match_parent"
     tools:context=".GoalsActivity">
 
+    <TextView
+        android:id="@+id/tvGoalsHeader"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Daily Goals"
+        android:textSize="24sp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="16dp" />
+    <!-- Blue color text for the quote and italic text style -->
+
+    <TextView
+        android:id="@+id/tvQuote"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="A GOAL IS A DREAM WITH A DEADLINE"
+        android:textColor="#0000FF"
+        tools:layout_editor_absoluteX="82dp"
+        tools:layout_editor_absoluteY="72dp" />
+
+    <TextView
+        android:id="@+id/tvMinGoalLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Minimum Daily Hours"
+        app:layout_constraintTop_toBottomOf="@id/tvQuote"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginTop="24dp"
+        android:layout_marginStart="32dp" />
+
+    <EditText
+        android:id="@+id/etMinGoal"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint="Enter minimum daily goal"
+        android:inputType="numberDecimal"
+        app:layout_constraintTop_toBottomOf="@id/tvMinGoalLabel"
+        app:layout_constraintStart_toStartOf="@id/tvMinGoalLabel"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginEnd="32dp" />
+
+    <TextView
+        android:id="@+id/tvMaxGoalLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Maximum Daily Hours"
+        app:layout_constraintTop_toBottomOf="@id/etMinGoal"
+        app:layout_constraintStart_toStartOf="@id/etMinGoal"
+        android:layout_marginTop="16dp" />
+
+    <EditText
+        android:id="@+id/etMaxGoal"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint="Enter maximum daily goal"
+        android:inputType="numberDecimal"
+        app:layout_constraintTop_toBottomOf="@id/tvMaxGoalLabel"
+        app:layout_constraintStart_toStartOf="@id/tvMaxGoalLabel"
+        app:layout_constraintEnd_toEndOf="@id/etMinGoal" />
+
+    <Button
+        android:id="@+id/btnSetGoal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Set Goal"
+        app:layout_constraintTop_toBottomOf="@id/etMaxGoal"
+        app:layout_constraintEnd_toEndOf="@id/etMaxGoal"
+        android:layout_marginTop="24dp" />
+
+    <TextView
+        android:id="@+id/tvGoalsAnalysis"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Goals Analysis Over Past Month"
+        android:textStyle="bold"
+        app:layout_constraintTop_toBottomOf="@id/btnSetGoal"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="32dp" />
+
+    <!-- Placeholder for the graph -->
+    <TextView
+        android:id="@+id/tvGraphPlaceholder"
+        android:layout_width="0dp"
+        android:layout_height="200dp"
+        android:background="#E0E0E0"  />
+
+    <Button
+        android:id="@+id/btnNewTimeEntry"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="New Time Entry"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/btnDataVisualization"
+        app:layout_constraintWidth_percent="0.5"
+        android:layout_marginBottom="16dp" />
+
+    <Button
+        android:id="@+id/btnDataVisualization"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Data Visualization"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@id/btnNewTimeEntry"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintWidth_percent="0.5"
+        android:layout_marginBottom="16dp" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
+
