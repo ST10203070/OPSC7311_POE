@@ -63,16 +63,42 @@ class FirestoreRepository {
             }
     }
 
-    fun addTimeEntry(timeEntry: TimeEntry) {
+
+    // Add a time entry to Firestore
+    fun addTimeEntry(timeEntry: TimeEntry, callback: (Boolean) -> Unit) {
         val timeEntriesCollection = db.collection("timeEntries")
         timeEntriesCollection.document().set(timeEntry)
             .addOnSuccessListener {
-                // Handle success
+                callback(true)
             }
-            .addOnFailureListener { e ->
-                // Handle failure
+            .addOnFailureListener {
+                callback(false)
             }
     }
+
+    // Update a time entry in Firestore
+    fun updateTimeEntry(timeEntryId: String, updatedTimeEntry: TimeEntry, callback: (Boolean) -> Unit) {
+        val timeEntryRef = db.collection("timeEntries").document(timeEntryId)
+        timeEntryRef.set(updatedTimeEntry)
+            .addOnSuccessListener {
+                callback(true)
+            }
+            .addOnFailureListener {
+                callback(false)
+            }
+    }
+    // Delete a time entry from Firestore
+    fun deleteTimeEntry(timeEntryId: String, callback: (Boolean) -> Unit) {
+        val timeEntryRef = db.collection("timeEntries").document(timeEntryId)
+        timeEntryRef.delete()
+            .addOnSuccessListener {
+                callback(true)
+            }
+            .addOnFailureListener {
+                callback(false)
+            }
+    }
+
 
     fun addCategory(category: Category) {
         val categoriesCollection = db.collection("categories")
