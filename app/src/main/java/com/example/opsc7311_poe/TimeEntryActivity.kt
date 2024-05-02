@@ -12,6 +12,7 @@ import com.example.opsc7311_poe.databinding.ActivityTimeEntryBinding
 import com.google.firebase.firestore.FirebaseFirestore
 import java.util.*
 
+//
 class TimeEntryActivity : AppCompatActivity() {
     private lateinit var binding: ActivityTimeEntryBinding
     private val firestore = FirebaseFirestore.getInstance()
