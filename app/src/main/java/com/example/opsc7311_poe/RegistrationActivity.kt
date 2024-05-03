@@ -9,7 +9,8 @@ import com.google.firebase.firestore.firestore
 
 class RegistrationActivity : AppCompatActivity() {
     private lateinit var binding: ActivityRegistrationBinding
-    private val firestoreRepository = FirestoreRepository()
+    private val firestoreRepository = FirestoreRepository(this)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityRegistrationBinding.inflate(layoutInflater)

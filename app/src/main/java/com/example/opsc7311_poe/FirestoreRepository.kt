@@ -4,6 +4,7 @@ import com.google.firebase.Firebase
 import com.google.firebase.firestore.firestore
 import android.widget.Toast
 import android.content.Context
+import android.util.Log
 
 
 class FirestoreRepository(private val context: Context) {
@@ -148,6 +149,46 @@ class FirestoreRepository(private val context: Context) {
                 ).show()
                 onFailure(exception)
             }
+
+        fun getTimeSheetEntry(callback: (List<Pair<String, String>>) -> Unit) {
+            val timeEntriesCollection = db.collection("timeEntries")
+
+            timeEntriesCollection.get().addOnSuccessListener { querySnapshot ->
+                val entriesList = mutableListOf<Pair<String, String>>()
+                for (document in querySnapshot.documents) {
+                    val date = document.getString("date") ?: "Unknown Date"
+                    val description = document.getString("description") ?: "No Description"
+                    entriesList.add(Pair(date, description))
+                }
+                callback(entriesList)
+            }.addOnFailureListener { exception ->
+                // Handle failure
+                Log.e("FirestoreRepository", "Error getting time sheet entries", exception)
+                callback(emptyList())
+            }
+        }
+
+        // Method to get Categories and their respective hours
+        fun getCategorySummary(callback: (List<Pair<String, Double>>) -> Unit) {
+            val timeEntriesCollection = db.collection("timeEntries")
+
+            timeEntriesCollection.get().addOnSuccessListener { querySnapshot ->
+                val categoryMap = mutableMapOf<String, Double>()
+                for (document in querySnapshot.documents) {
+                    val category = document.getString("category") ?: "Uncategorized"
+                    val duration = document.getDouble("duration") ?: 0.0
+                    categoryMap[category] = categoryMap.getOrDefault(category, 0.0) + duration
+                }
+                val categoryList = categoryMap.toList()
+                callback(categoryList)
+            }.addOnFailureListener { exception ->
+                // Handle failure
+                Log.e("FirestoreRepository", "Error getting category summary", exception)
+                callback(emptyList())
+            }
+
+        }
     }
 }
+
     // Add more methods as needed for read, update, delete operations
