@@ -1,36 +1,35 @@
-package com.example.opsc7311_poe
+package com.example.ops7311_poe
 
-import android.os.Bundle
-import androidx.appcompat.app.AppCompatActivity
-import com.example.opsc7311_poe.databinding.ActivityDataVisualisationBinding
-import java.text.SimpleDateFormat
-import com.google.firebase.firestore.FirebaseFirestore
-import java.util.*
 import android.app.DatePickerDialog
+import androidx.appcompat.app.AppCompatActivity
+import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
-import android.widget.ListView
 import android.widget.TextView
 
+import com.example.opsc7311_poe.R
+import com.example.opsc7311_poe.TimeEntry
+import com.example.opsc7311_poe.databinding.ActivityDataVisualisationBinding
+import java.text.SimpleDateFormat
+import java.util.*
 
 class DataVisualisationActivity : AppCompatActivity() {
     private lateinit var binding: ActivityDataVisualisationBinding
     private lateinit var timesheetEntriesAdapter: TimesheetEntriesAdapter
-    private val firestoreRepository = FirestoreRepository(this)
+    private val timesheetEntries = mutableListOf<TimeEntry>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityDataVisualisationBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        timesheetEntriesAdapter = TimesheetEntriesAdapter(emptyList())
+        timesheetEntriesAdapter = TimesheetEntriesAdapter(timesheetEntries)
         binding.timesheetEntriesListview.adapter = timesheetEntriesAdapter
 
         // Set up date picker button click listener
         binding.selectDateBtn.setOnClickListener {
-            // Open date picker dialog to select date range
             showDatePickerDialog()
         }
 
@@ -39,7 +38,7 @@ class DataVisualisationActivity : AppCompatActivity() {
     }
 
     private fun loadTimesheetEntriesAndCategorySummary() {
-        val startDate = binding.dateView.text.toString()
+        val startDate = "2022-01-01"
         val endDate = getEndDate(startDate)
 
         loadTimesheetEntries(startDate, endDate)
@@ -97,7 +96,7 @@ class DataVisualisationActivity : AppCompatActivity() {
         }
 
         override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
-            val view: View = convertView ?: LayoutInflater.from(parent.context)
+            val view = convertView ?: LayoutInflater.from(parent.context)
                 .inflate(R.layout.activity_data_visualisation, parent, false)
 
             val timeEntry = getItem(position) as TimeEntry
@@ -113,19 +112,20 @@ class DataVisualisationActivity : AppCompatActivity() {
     }
 
     private fun loadTimesheetEntries(startDate: String, endDate: String) {
-        firestoreRepository.getTimesheetEntry() { timesheetEntries ->
-            timesheetEntriesAdapter = TimesheetEntriesAdapter(timesheetEntries)
-            binding.timesheetEntriesListview.adapter = timesheetEntriesAdapter
-        }
+        timesheetEntries.clear()
+
+
+
+        timesheetEntriesAdapter = TimesheetEntriesAdapter(timesheetEntries)
+        binding.timesheetEntriesListview.adapter = timesheetEntriesAdapter
     }
 
     private fun loadCategorySummary(startDate: String, endDate: String) {
-        firestoreRepository.getCategorySummary() { categorySummary ->
-            binding.categorySummaryTextview.text = categorySummary
-        }
+        // Add dummy data for now
+        val categorySummary = "Total hours: 10.0, Total entries: 2"
+        binding.categorySummaryTextview.text = categorySummary
     }
 }
-
 
 //COLBY
 //Implement the summary views allowing users to view the list of all timesheet entries created during a user-selectable period. If a photo was stored for an entry, the user must be able to access it from this list
