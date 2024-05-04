@@ -18,7 +18,7 @@ import com.google.firebase.firestore.firestore
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
-    private val firestoreRepository = FirestoreRepository()
+    private val firestoreRepository = FirestoreRepository(this)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

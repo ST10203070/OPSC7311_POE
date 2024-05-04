@@ -44,6 +44,16 @@ class TimeEntryActivity : AppCompatActivity() {
         binding.btnAddPhoto.setOnClickListener {
             openGallery()
         }
+
+        //Set goals click listener
+        binding.btnSetGoals.setOnClickListener {
+            startActivity(Intent(this, GoalsActivity::class.java))
+        }
+
+        //Data visualisation click listener
+        binding.btnDataVisualisation.setOnClickListener {
+            startActivity(Intent(this, DataVisualisationActivity::class.java))
+        }
     }
 
     private fun showDatePicker() {

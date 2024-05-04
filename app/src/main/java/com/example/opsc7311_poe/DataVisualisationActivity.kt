@@ -1,6 +1,7 @@
-package com.example.ops7311_poe
+package com.example.opsc7311_poe
 
 import android.app.DatePickerDialog
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -9,8 +10,6 @@ import android.view.ViewGroup
 import android.widget.BaseAdapter
 import android.widget.TextView
 
-import com.example.opsc7311_poe.R
-import com.example.opsc7311_poe.TimeEntry
 import com.example.opsc7311_poe.databinding.ActivityDataVisualisationBinding
 import java.text.SimpleDateFormat
 import java.util.*
@@ -35,6 +34,16 @@ class DataVisualisationActivity : AppCompatActivity() {
 
         // Load initial data
         loadTimesheetEntriesAndCategorySummary()
+
+        //Set goals click listener
+        binding.buttonSetGoals.setOnClickListener {
+            startActivity(Intent(this, GoalsActivity::class.java))
+        }
+
+        //Time Entry click listener
+        binding.buttonNewTimeEntry.setOnClickListener {
+            startActivity(Intent(this, TimeEntryActivity::class.java))
+        }
     }
 
     private fun loadTimesheetEntriesAndCategorySummary() {
