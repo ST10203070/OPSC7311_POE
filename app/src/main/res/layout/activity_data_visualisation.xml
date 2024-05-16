@@ -2,108 +2,185 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#E6F7FF">
-
+    android:background="#E6F7FF"
+    android:padding="16dp">
 
     <TextView
         android:id="@+id/tvTitle"
-        android:layout_width="255dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
-        android:text="Time Sheet Summary"
-        android:textColor="#000000"
-        android:textSize="26sp"
-        android:textStyle="bold" />
+        android:text="Data Visualisation"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="16dp" />
 
     <View
         android:id="@+id/divider"
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:background="#000000"
-        android:layout_below="@id/tvTitle" />
+        android:layout_below="@id/tvTitle"
+        android:layout_marginBottom="16dp" />
 
-    <TextView
-        android:id="@+id/datePickerText"
-        android:layout_width="match_parent"
-        android:layout_height="41dp"
-        android:layout_below="@id/divider"
-        android:layout_marginTop="8dp"
-        android:layout_weight="1"
-        android:text="Date filter: Select a date to search time-entries from"
-        android:textColor="#000000"
-        android:textSize="18sp" />
-
-
-    <Button
-        android:id="@+id/selectDateBtn"
-        android:layout_width="170dp"
-        android:layout_height="61dp"
-        android:layout_below="@id/divider"
-        android:layout_marginTop="48dp"
-        android:text="Select Date"
-        android:textColor="#000000"
-        android:textSize="16sp" />
-
-    <EditText
-        android:id="@+id/dateView"
-        android:layout_width="match_parent"
-        android:layout_height="64dp"
-        android:layout_below="@id/divider"
-        android:layout_marginTop="113dp"
-        android:ems="10"
-        android:inputType="date" />
-
-    <ListView
-        android:id="@+id/timesheet_entries_listview"
-        android:layout_width="match_parent"
-        android:layout_height="274dp"
-        android:layout_below="@id/dateView"
-        android:layout_marginTop="61dp" />
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="30dp"
-        android:layout_below="@id/timesheet_entries_listview"
-        android:layout_marginTop="27dp"
-        android:text="Category Summary:"
-        android:textSize="18sp"
-        android:textStyle="bold" />
-
-    <TextView
-        android:id="@+id/category_summary_textview"
+    <ScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/timesheet_entries_listview"
-        android:layout_marginTop="95dp"
-        android:textColor="#000000"
-        android:textSize="16sp"
-        android:textStyle="bold" />
+        android:layout_below="@id/divider">
 
-    <TextView
-        android:id="@+id/textView"
-        android:layout_width="363dp"
-        android:layout_height="32dp"
-        android:layout_below="@+id/selectDateBtn"
-        android:layout_marginTop="80dp"
-        android:text="Summary View"
-        android:textSize="25sp" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
 
+            <!-- Date Filter -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="16dp">
+
+                <TextView
+                    android:id="@+id/startDateLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Start Date"
+                    android:textSize="16sp"
+                    android:layout_marginEnd="16dp" />
+
+                <TextView
+                    android:id="@+id/startDateValue"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="                                                                "
+                    android:textSize="16sp"
+                    android:textColor="@android:color/holo_blue_dark" />
+
+                <ImageButton
+                    android:id="@+id/startDateButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@android:drawable/ic_menu_today"
+                    android:contentDescription="Select Start Date"
+                    android:background="?attr/selectableItemBackground"
+                    android:layout_marginStart="8dp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="16dp">
+
+                <TextView
+                    android:id="@+id/endDateLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="End Date"
+                    android:textSize="16sp"
+                    android:layout_marginEnd="32dp" />
+
+                <TextView
+                    android:id="@+id/endDateValue"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="                                                              "
+                    android:textSize="16sp"
+                    android:textColor="@android:color/holo_blue_dark" />
+
+                <ImageButton
+                    android:id="@+id/endDateButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@android:drawable/ic_menu_today"
+                    android:contentDescription="Select End Date"
+                    android:background="?attr/selectableItemBackground"
+                    android:layout_marginStart="8dp" />
+            </LinearLayout>
+
+            <!-- Time Entries Filtered by Date -->
+            <TextView
+                android:id="@+id/timeEntriesLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Time Entries Filtered by Date"
+                android:textSize="16sp"
+                android:layout_marginBottom="8dp" />
+
+            <ListView
+                android:id="@+id/timeEntriesListView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp" />
+
+            <!-- Hours Spent On Categories Filtered by Date -->
+            <TextView
+                android:id="@+id/categoryLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Hours Spent On Categories Filtered by Date"
+                android:textSize="16sp"
+                android:layout_marginBottom="8dp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginBottom="16dp">
+
+                <TextView
+                    android:id="@+id/category1"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Category 1      0"
+                    android:textSize="16sp"
+                    android:layout_marginBottom="8dp" />
+
+                <TextView
+                    android:id="@+id/category2"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Category 2      0"
+                    android:textSize="16sp"
+                    android:layout_marginBottom="8dp" />
+
+                <TextView
+                    android:id="@+id/category3"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Category 3      0"
+                    android:textSize="16sp"
+                    android:layout_marginBottom="16dp" />
+            </LinearLayout>
+
+            <!-- Hours Spent Working Filtered by Date (Chart) -->
+            <TextView
+                android:id="@+id/chartLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Hours Spent Working Filtered by Date"
+                android:textSize="16sp"
+                android:layout_marginBottom="8dp" />
+
+            <!-- Placeholder for the chart (use an ImageView for simplicity) -->
+            <ImageView
+                android:id="@+id/chartImageView"
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                android:layout_marginBottom="16dp"
+                android:contentDescription="Chart Placeholder"
+                android:src="@drawable/logo" />
+        </LinearLayout>
+    </ScrollView>
+
+    <!-- Bottom Buttons -->
     <LinearLayout
         android:id="@+id/buttonsLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:layout_alignParentBottom="true"
-        android:gravity="center">
-
-        <Button
-            android:id="@+id/buttonSetGoals"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Set Goals"
-            android:textColor="#000000"
-            android:textSize="16sp"
-            android:layout_margin="8dp" />
+        android:gravity="center"
+        android:layout_alignParentBottom="true">
 
         <Button
             android:id="@+id/buttonNewTimeEntry"
@@ -114,6 +191,15 @@
             android:textSize="16sp"
             android:layout_margin="8dp" />
 
+        <Button
+            android:id="@+id/buttonDailyGoals"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Daily Goals"
+            android:textColor="#000000"
+            android:textSize="16sp"
+            android:layout_margin="8dp" />
     </LinearLayout>
 
 </RelativeLayout>
+
