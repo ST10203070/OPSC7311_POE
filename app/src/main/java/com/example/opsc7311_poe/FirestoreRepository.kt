@@ -1,14 +1,12 @@
 package com.example.opsc7311_poe
 
-import com.google.firebase.Firebase
-import com.google.firebase.firestore.firestore
-import android.widget.Toast
 import android.content.Context
 import android.util.Log
-
+import android.widget.Toast
+import com.google.firebase.firestore.FirebaseFirestore
 
 class FirestoreRepository(private val context: Context) {
-    private val db = Firebase.firestore
+    private val db = FirebaseFirestore.getInstance()
 
     fun createTables() {
         // Create a collection reference for each table
@@ -67,7 +65,6 @@ class FirestoreRepository(private val context: Context) {
             }
     }
 
-
     // Add a time entry to Firestore
     fun addTimeEntry(timeEntry: TimeEntry, callback: (Boolean) -> Unit) {
         val timeEntriesCollection = db.collection("timeEntries")
@@ -108,15 +105,31 @@ class FirestoreRepository(private val context: Context) {
             }
     }
 
-
-    fun addCategory(category: Category) {
-        val categoriesCollection = db.collection("categories")
-        categoriesCollection.document().set(category)
+    // Add a category for a user
+    fun addCategory(userId: String, category: Category, callback: () -> Unit) {
+        val categoriesCollection = db.collection("users").document(userId).collection("categories")
+        categoriesCollection.document(category.id.toString()).set(category)
             .addOnSuccessListener {
-                // Handle success
+                callback()
             }
             .addOnFailureListener { e ->
-                // Handle failure
+                Log.e("FirestoreRepository", "Error adding category", e)
+                Toast.makeText(context, "Failed to add category: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+    }
+
+    // Get categories for a user
+    fun getCategories(userId: String, callback: (List<Category>) -> Unit) {
+        val categoriesCollection = db.collection("users").document(userId).collection("categories")
+        categoriesCollection.get()
+            .addOnSuccessListener { querySnapshot ->
+                val categories = querySnapshot.documents.mapNotNull { it.toObject(Category::class.java) }
+                callback(categories)
+            }
+            .addOnFailureListener { e ->
+                Log.e("FirestoreRepository", "Error getting categories", e)
+                Toast.makeText(context, "Failed to get categories: ${e.message}", Toast.LENGTH_SHORT).show()
+                callback(emptyList())
             }
     }
 
@@ -134,7 +147,6 @@ class FirestoreRepository(private val context: Context) {
             "timestamp" to System.currentTimeMillis()
         )
 
-
         db.collection("users").document(userId).collection("goals").document("current")
             .set(goalsData)
             .addOnSuccessListener {
@@ -149,46 +161,43 @@ class FirestoreRepository(private val context: Context) {
                 ).show()
                 onFailure(exception)
             }
+    }
 
-        fun getTimeSheetEntry(callback: (List<Pair<String, String>>) -> Unit) {
-            val timeEntriesCollection = db.collection("timeEntries")
+    fun getTimeSheetEntry(callback: (List<Pair<String, String>>) -> Unit) {
+        val timeEntriesCollection = db.collection("timeEntries")
 
-            timeEntriesCollection.get().addOnSuccessListener { querySnapshot ->
-                val entriesList = mutableListOf<Pair<String, String>>()
-                for (document in querySnapshot.documents) {
-                    val date = document.getString("date") ?: "Unknown Date"
-                    val description = document.getString("description") ?: "No Description"
-                    entriesList.add(Pair(date, description))
-                }
-                callback(entriesList)
-            }.addOnFailureListener { exception ->
-                // Handle failure
-                Log.e("FirestoreRepository", "Error getting time sheet entries", exception)
-                callback(emptyList())
+        timeEntriesCollection.get().addOnSuccessListener { querySnapshot ->
+            val entriesList = mutableListOf<Pair<String, String>>()
+            for (document in querySnapshot.documents) {
+                val date = document.getString("date") ?: "Unknown Date"
+                val description = document.getString("description") ?: "No Description"
+                entriesList.add(Pair(date, description))
             }
+            callback(entriesList)
+        }.addOnFailureListener { exception ->
+            // Handle failure
+            Log.e("FirestoreRepository", "Error getting time sheet entries", exception)
+            callback(emptyList())
         }
+    }
 
-        // Method to get Categories and their respective hours
-        fun getCategorySummary(callback: (List<Pair<String, Double>>) -> Unit) {
-            val timeEntriesCollection = db.collection("timeEntries")
+    // Method to get Categories and their respective hours
+    fun getCategorySummary(callback: (List<Pair<String, Double>>) -> Unit) {
+        val timeEntriesCollection = db.collection("timeEntries")
 
-            timeEntriesCollection.get().addOnSuccessListener { querySnapshot ->
-                val categoryMap = mutableMapOf<String, Double>()
-                for (document in querySnapshot.documents) {
-                    val category = document.getString("category") ?: "Uncategorized"
-                    val duration = document.getDouble("duration") ?: 0.0
-                    categoryMap[category] = categoryMap.getOrDefault(category, 0.0) + duration
-                }
-                val categoryList = categoryMap.toList()
-                callback(categoryList)
-            }.addOnFailureListener { exception ->
-                // Handle failure
-                Log.e("FirestoreRepository", "Error getting category summary", exception)
-                callback(emptyList())
+        timeEntriesCollection.get().addOnSuccessListener { querySnapshot ->
+            val categoryMap = mutableMapOf<String, Double>()
+            for (document in querySnapshot.documents) {
+                val category = document.getString("category") ?: "Uncategorized"
+                val duration = document.getDouble("duration") ?: 0.0
+                categoryMap[category] = categoryMap.getOrDefault(category, 0.0) + duration
             }
-
+            val categoryList = categoryMap.toList()
+            callback(categoryList)
+        }.addOnFailureListener { exception ->
+            // Handle failure
+            Log.e("FirestoreRepository", "Error getting category summary", exception)
+            callback(emptyList())
         }
     }
 }
-
-    // Add more methods as needed for read, update, delete operations
