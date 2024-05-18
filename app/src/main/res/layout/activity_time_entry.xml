@@ -171,7 +171,7 @@
                 app:layout_constraintTop_toBottomOf="@id/etDuration"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="5dp"
                 android:orientation="horizontal"
                 android:gravity="center">
 
@@ -203,7 +203,7 @@
                 app:layout_constraintTop_toBottomOf="@id/tvDuration"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                android:layout_marginTop="100dp"
+                android:layout_marginTop="85dp"
                 android:hint="Description" />
 
             <!-- Category -->
@@ -237,24 +237,29 @@
                 android:text="Add a photo"
                 android:textSize="16sp" />
 
-            <Spinner
-                android:id="@+id/spinnerAddPhoto"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                app:layout_constraintTop_toBottomOf="@id/btnAddPhoto"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                android:layout_marginTop="8dp" />
-
             <!-- Note -->
+
+            <ImageButton
+                android:id="@+id/btnSelectPhoto"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:background="?attr/selectableItemBackground"
+                android:contentDescription="Select Photo"
+                android:src="@android:drawable/ic_menu_gallery"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.008"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/btnAddPhoto" />
+
             <EditText
                 android:id="@+id/etNote"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                app:layout_constraintTop_toBottomOf="@id/spinnerAddPhoto"
+                app:layout_constraintTop_toBottomOf="@id/btnSelectPhoto"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="5dp"
                 android:hint="Write a note (optional)" />
 
             <!-- Create Button -->

@@ -5,11 +5,14 @@ import android.app.TimePickerDialog
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.text.Editable
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import com.example.opsc7311_poe.databinding.ActivityTimeEntryBinding
 import com.google.firebase.firestore.FirebaseFirestore
@@ -28,6 +31,7 @@ class TimeEntryActivity : AppCompatActivity() {
     private var endTimeInMillis: Long = 0
     private val categories = ArrayList<String>()
     private val fireStoreRepository = FirestoreRepository(this)
+    private lateinit var galleryLauncher: ActivityResultLauncher<Intent>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -37,6 +41,17 @@ class TimeEntryActivity : AppCompatActivity() {
         // Set the date to the current date
         val currentDate = dateFormat.format(Date())
         binding.etDate.text = currentDate
+
+        // Register the launcher for gallery intent
+        galleryLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == RESULT_OK && result.data != null) {
+                val selectedImageUri: Uri? = result.data?.data
+                if (selectedImageUri != null) {
+                    selectedPhotoPath = selectedImageUri.toString()
+                    Toast.makeText(this, "Photo selected successfully", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
 
         // Set up date picker button click listeners
         binding.btnSelectDate.setOnClickListener {
@@ -80,8 +95,8 @@ class TimeEntryActivity : AppCompatActivity() {
             saveTimeEntry()
         }
 
-        // Set up click listener for btnAddPhoto button
-        binding.btnAddPhoto.setOnClickListener {
+        // Set up click listener for btnSelectPhoto button
+        binding.btnSelectPhoto.setOnClickListener {
             openGallery()
         }
 
@@ -102,9 +117,6 @@ class TimeEntryActivity : AppCompatActivity() {
 
         // Set up Spinner for categories
         setupCategorySpinner()
-
-        // Set up Spinner for photos
-        setupPhotoSpinner()
     }
 
     private fun showDatePicker() {
@@ -181,7 +193,7 @@ class TimeEntryActivity : AppCompatActivity() {
         val description = binding.etDescription.text.toString()
         val note = binding.etNote.text.toString()
         val category = binding.spinnerCategory.selectedItem?.toString() ?: ""
-        val photo = binding.spinnerAddPhoto.selectedItem?.toString() ?: ""
+        val photo = selectedPhotoPath ?: ""
 
         // Validate data (you can add your validation logic here)
 
@@ -200,26 +212,28 @@ class TimeEntryActivity : AppCompatActivity() {
             .add(timeEntry)
             .addOnSuccessListener {
                 Toast.makeText(this, "Time entry saved successfully", Toast.LENGTH_SHORT).show()
-                finish() // Close this activity after saving
+                clearInputFields() // Clear the input fields without closing the activity
             }
             .addOnFailureListener { e ->
                 Toast.makeText(this, "Error saving time entry: ${e.message}", Toast.LENGTH_SHORT).show()
             }
     }
 
+    private fun clearInputFields() {
+        binding.etStartTime.text = Editable.Factory.getInstance().newEditable("")
+        binding.etEndTime.text = Editable.Factory.getInstance().newEditable("")
+        binding.etDescription.text = Editable.Factory.getInstance().newEditable("")
+        binding.etNote.text = Editable.Factory.getInstance().newEditable("")
+        binding.spinnerCategory.setSelection(0)
+        selectedPhotoPath = null
+        binding.etDuration.text = "00:00"
+    }
+
+
     private fun openGallery() {
         val intent = Intent(Intent.ACTION_PICK)
         intent.type = "image/*"
-        startActivityForResult(intent, REQUEST_IMAGE_GALLERY)
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == REQUEST_IMAGE_GALLERY && resultCode == RESULT_OK && data != null) {
-            val selectedImageUri: Uri? = data.data
-            // You can handle the selected image URI here
-            selectedPhotoPath = selectedImageUri.toString()
-        }
+        galleryLauncher.launch(intent)
     }
 
     private fun setupCategorySpinner() {
@@ -237,24 +251,6 @@ class TimeEntryActivity : AppCompatActivity() {
                 override fun onNothingSelected(parent: AdapterView<*>) {
                     selectedCategoryId = -1
                 }
-            }
-        }
-    }
-
-    private fun setupPhotoSpinner() {
-        // Fetch photos from Firestore or other source
-        val photos = listOf("Photo 1", "Photo 2", "Photo 3")
-        val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, photos)
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        binding.spinnerAddPhoto.adapter = adapter
-
-        binding.spinnerAddPhoto.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
-                selectedPhotoPath = photos[position]
-            }
-
-            override fun onNothingSelected(parent: AdapterView<*>) {
-                selectedPhotoPath = null
             }
         }
     }

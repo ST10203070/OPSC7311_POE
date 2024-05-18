@@ -123,6 +123,7 @@ class DataVisualisationActivity : AppCompatActivity() {
                 startTime = Date(),
                 endTime = Date(),
                 description = "Example 1",
+                note = "Note 1",
                 categoryId = 1,
                 photoPath = null,
                 totalHours = 2.0f
@@ -135,6 +136,7 @@ class DataVisualisationActivity : AppCompatActivity() {
                 startTime = Date(),
                 endTime = Date(),
                 description = "Example 2",
+                note = "Note 2",
                 categoryId = 2,
                 photoPath = null,
                 totalHours = 3.0f
@@ -147,6 +149,7 @@ class DataVisualisationActivity : AppCompatActivity() {
                 startTime = Date(),
                 endTime = Date(),
                 description = "Example 3",
+                note = "Note 3",
                 categoryId = 3,
                 photoPath = null,
                 totalHours = 4.0f

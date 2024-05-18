@@ -11,6 +11,7 @@ data class TimeEntry(
     val startTime: Date, // Start time of the work
     val endTime: Date, // End time of the work
     val description: String, // Description of the work done
+    val note: String,
     val categoryId: Int, // ID of the category this entry belongs to
     val photoPath: String?, // Optional path to a photo related to the entry
     val totalHours: Float // Total hours worked for this entry
