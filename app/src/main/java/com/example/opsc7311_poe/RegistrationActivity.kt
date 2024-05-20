@@ -1,20 +1,32 @@
 package com.example.opsc7311_poe
 
+import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.opsc7311_poe.databinding.ActivityRegistrationBinding
-import com.google.firebase.Firebase
-import com.google.firebase.firestore.firestore
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
+
 
 class RegistrationActivity : AppCompatActivity() {
     private lateinit var binding: ActivityRegistrationBinding
     private val firestoreRepository = FirestoreRepository(this)
+    private lateinit var auth: FirebaseAuth
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityRegistrationBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        auth = FirebaseAuth.getInstance()
+
+        //Register link click listener
+        binding.tvLoginLink.setOnClickListener {
+            startActivity(Intent(this, MainActivity::class.java))
+        }
 
         binding.btnRegister.setOnClickListener {
             // Disable the button to prevent multiple clicks

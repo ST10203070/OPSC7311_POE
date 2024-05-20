@@ -4,6 +4,7 @@ import android.content.Context
 import android.util.Log
 import android.widget.Toast
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.SetOptions
 
 class FirestoreRepository(private val context: Context) {
     private val db = FirebaseFirestore.getInstance()
@@ -14,7 +15,7 @@ class FirestoreRepository(private val context: Context) {
         val timeEntriesCollection = db.collection("timeEntries")
         val categoriesCollection = db.collection("categories")
 
-        // Add a document to each collection to create the table
+        // Add a document to each collection to creTate the table
         usersCollection.document("placeholder").set(mapOf("placeholder" to "data"))
         timeEntriesCollection.document("placeholder").set(mapOf("placeholder" to "data"))
         categoriesCollection.document("placeholder").set(mapOf("placeholder" to "data"))
@@ -78,11 +79,7 @@ class FirestoreRepository(private val context: Context) {
     }
 
     // Update a time entry in Firestore
-    fun updateTimeEntry(
-        timeEntryId: String,
-        updatedTimeEntry: TimeEntry,
-        callback: (Boolean) -> Unit
-    ) {
+    fun updateTimeEntry(timeEntryId: String, updatedTimeEntry: TimeEntry, callback: (Boolean) -> Unit) {
         val timeEntryRef = db.collection("timeEntries").document(timeEntryId)
         timeEntryRef.set(updatedTimeEntry)
             .addOnSuccessListener {
@@ -133,7 +130,7 @@ class FirestoreRepository(private val context: Context) {
             }
     }
 
-    // Add method to save goals within FirestoreRepository
+    // Method to save goals within FirestoreRepository
     fun saveUserGoals(
         userId: String,
         minGoal: Double,
@@ -142,23 +139,19 @@ class FirestoreRepository(private val context: Context) {
         onFailure: (Exception) -> Unit
     ) {
         val goalsData = hashMapOf(
-            "minGoal" to minGoal,
-            "maxGoal" to maxGoal,
+            "minDailyGoal" to minGoal,
+            "maxDailyGoal" to maxGoal,
             "timestamp" to System.currentTimeMillis()
         )
 
-        db.collection("users").document(userId).collection("goals").document("current")
-            .set(goalsData)
+        db.collection("users").document(userId)
+            .update(goalsData as Map<String, Any>)
             .addOnSuccessListener {
                 Toast.makeText(context, "Goals saved successfully", Toast.LENGTH_SHORT).show()
                 onSuccess()
             }
             .addOnFailureListener { exception ->
-                Toast.makeText(
-                    context,
-                    "Failed to save goals: ${exception.message}",
-                    Toast.LENGTH_SHORT
-                ).show()
+                Toast.makeText(context, "Failed to save goals: ${exception.message}", Toast.LENGTH_SHORT).show()
                 onFailure(exception)
             }
     }
@@ -199,5 +192,23 @@ class FirestoreRepository(private val context: Context) {
             Log.e("FirestoreRepository", "Error getting category summary", exception)
             callback(emptyList())
         }
+    }
+
+    // Fetch goals data for the past month
+    fun getGoalsData(username: String, callback: (List<Pair<String, Double>>) -> Unit) {
+        val userDocRef = db.collection("users").document(username)
+        userDocRef.collection("goalsData")
+            .get()
+            .addOnSuccessListener { querySnapshot ->
+                val goalsData = querySnapshot.documents.mapNotNull {
+                    val date = it.id
+                    val hours = it.getDouble("hours") ?: return@mapNotNull null
+                    date to hours
+                }
+                callback(goalsData)
+            }
+            .addOnFailureListener {
+                callback(emptyList())
+            }
     }
 }

@@ -32,11 +32,15 @@ class TimeEntryActivity : AppCompatActivity() {
     private val categories = ArrayList<String>()
     private val fireStoreRepository = FirestoreRepository(this)
     private lateinit var galleryLauncher: ActivityResultLauncher<Intent>
+    private lateinit var username: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityTimeEntryBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        // Retrieve the username from the Intent
+        username = intent.getStringExtra("USERNAME") ?: ""
 
         // Set the date to the current date
         val currentDate = dateFormat.format(Date())
@@ -100,15 +104,8 @@ class TimeEntryActivity : AppCompatActivity() {
             openGallery()
         }
 
-        // Set goals click listener
-        binding.btnDailyGoals.setOnClickListener {
-            startActivity(Intent(this, GoalsActivity::class.java))
-        }
-
-        // Data visualisation click listener
-        binding.btnDataVisualisation.setOnClickListener {
-            startActivity(Intent(this, DataVisualisationActivity::class.java))
-        }
+        //Navigation for Daily Goals and Data Visualisation buttons
+        setupNavigation()
 
         // Set up category add button
         binding.btnAddCategory.setOnClickListener {
@@ -117,6 +114,20 @@ class TimeEntryActivity : AppCompatActivity() {
 
         // Set up Spinner for categories
         setupCategorySpinner()
+    }
+
+    private fun setupNavigation() {
+        binding.btnDailyGoals.setOnClickListener {
+            // Navigate to GoalsActivity and pass the username
+            val intent = Intent(this, GoalsActivity::class.java)
+            intent.putExtra("USERNAME", username)
+            startActivity(intent)
+        }
+
+        binding.btnDataVisualisation.setOnClickListener {
+            val intent = Intent(this, DataVisualisationActivity::class.java)
+            startActivity(intent)
+        }
     }
 
     private fun showDatePicker() {

@@ -5,16 +5,6 @@ import android.os.Bundle
 import android.widget.Toast
 import com.example.opsc7311_poe.databinding.ActivityMainBinding
 import androidx.appcompat.app.AppCompatActivity
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import com.example.opsc7311_poe.ui.theme.OPSC7311_POETheme
-import com.google.firebase.Firebase
-import com.google.firebase.firestore.firestore
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
@@ -53,8 +43,11 @@ class MainActivity : AppCompatActivity() {
                 // Password matches, proceed to login
                 runOnUiThread {
                     Toast.makeText(this, "Login successful!", Toast.LENGTH_SHORT).show()
-                    //Redirecting to Time Entry screen
-                    startActivity(Intent(this, TimeEntryActivity::class.java))
+                    //Redirecting to Time Entry screen and pass the username
+                    val intent = Intent(this, TimeEntryActivity::class.java)
+                    intent.putExtra("USERNAME", username)
+                    startActivity(intent)
+                    finish()
                 }
             } else {
                 // User doesn't exist or password doesn't match
@@ -67,6 +60,3 @@ class MainActivity : AppCompatActivity() {
     }
 
 }
-
-//MAX
-//Implement registration and login
