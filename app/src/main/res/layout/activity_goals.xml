@@ -35,6 +35,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Minimum Daily Hours"
+        android:textColor = "#00FF00"
         app:layout_constraintTop_toBottomOf="@id/tvQuote"
         app:layout_constraintStart_toStartOf="parent"
         android:layout_marginTop="24dp"
@@ -56,6 +57,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Maximum Daily Hours"
+        android:textColor = "#FF0000"
         app:layout_constraintTop_toBottomOf="@id/etMinGoal"
         app:layout_constraintStart_toStartOf="@id/etMinGoal"
         android:layout_marginTop="16dp" />
@@ -79,25 +81,14 @@
         app:layout_constraintEnd_toEndOf="@id/etMaxGoal"
         android:layout_marginTop="24dp" />
 
-    <TextView
-        android:id="@+id/tvGoalsAnalysis"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Goals Analysis Over Past Month"
-        android:textStyle="bold"
-        app:layout_constraintTop_toBottomOf="@id/btnSetGoal"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="32dp" />
-
     <com.anychart.AnyChartView
         android:id="@+id/barChart"
-        android:layout_width="0dp"
-        android:layout_height="300dp"
-        app:layout_constraintTop_toBottomOf="@+id/tvGoalsAnalysis"
-        app:layout_constraintStart_toStartOf="parent"
+        android:layout_width="409dp"
+        android:layout_height="299dp"
+        android:layout_marginTop="32dp"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="32dp" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btnSetGoal" />
 
     <Button
         android:id="@+id/btnNewTimeEntry"

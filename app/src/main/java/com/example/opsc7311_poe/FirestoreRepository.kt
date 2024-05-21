@@ -5,6 +5,9 @@ import android.util.Log
 import android.widget.Toast
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Locale
 
 class FirestoreRepository(private val context: Context) {
     private val db = FirebaseFirestore.getInstance()
@@ -156,23 +159,65 @@ class FirestoreRepository(private val context: Context) {
             }
     }
 
-    fun getTimeSheetEntry(callback: (List<Pair<String, String>>) -> Unit) {
-        val timeEntriesCollection = db.collection("timeEntries")
+    // Fetch goals data for the past month
+    fun getGoalsData(username: String, callback: (List<Pair<String, Double>>) -> Unit) {
+        val userDocRef = db.collection("users").document(username)
+        userDocRef.get()
+            .addOnSuccessListener { documentSnapshot ->
+                if (documentSnapshot.exists()) {
+                    val minDailyGoal = documentSnapshot.getDouble("minDailyGoal") ?: 0.0
+                    val maxDailyGoal = documentSnapshot.getDouble("maxDailyGoal") ?: 0.0
+                    val timestamp = documentSnapshot.getLong("timestamp") ?: 0L
 
-        timeEntriesCollection.get().addOnSuccessListener { querySnapshot ->
-            val entriesList = mutableListOf<Pair<String, String>>()
-            for (document in querySnapshot.documents) {
-                val date = document.getString("date") ?: "Unknown Date"
-                val description = document.getString("description") ?: "No Description"
-                entriesList.add(Pair(date, description))
+                    // Fetch time entries for the user
+                    db.collection("time_entries")
+                        .whereEqualTo("username", username)
+                        .get()
+                        .addOnSuccessListener { querySnapshot ->
+                            val goalsData = mutableListOf<Pair<String, Double>>()
+                            val calendar = Calendar.getInstance()
+                            calendar.add(Calendar.DAY_OF_MONTH, -30)
+                            for (i in 1..30) {
+                                calendar.add(Calendar.DAY_OF_MONTH, 1)
+                                val date = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(calendar.time)
+                                val hours = querySnapshot.documents
+                                    .filter { it.getString("date") == date }
+                                    .sumOf { it.getDouble("hours") ?: 0.0 }
+                                goalsData.add(date to hours)
+                            }
+
+                            Log.d("FirestoreRepository", "Goals Data: $goalsData") // Log data
+                            callback(goalsData)
+                        }
+                        .addOnFailureListener {
+                            callback(emptyList())
+                        }
+                } else {
+                    callback(emptyList())
+                }
             }
-            callback(entriesList)
-        }.addOnFailureListener { exception ->
-            // Handle failure
-            Log.e("FirestoreRepository", "Error getting time sheet entries", exception)
-            callback(emptyList())
-        }
+            .addOnFailureListener {
+                callback(emptyList())
+            }
     }
+
+    fun getUserGoals(userId: String, callback: (Double, Double) -> Unit) {
+        val userDocRef = db.collection("users").document(userId)
+        userDocRef.get()
+            .addOnSuccessListener { documentSnapshot ->
+                if (documentSnapshot.exists()) {
+                    val minGoal = documentSnapshot.getDouble("minDailyGoal") ?: 0.0
+                    val maxGoal = documentSnapshot.getDouble("maxDailyGoal") ?: 0.0
+                    callback(minGoal, maxGoal)
+                } else {
+                    callback(0.0, 0.0)
+                }
+            }
+            .addOnFailureListener {
+                callback(0.0, 0.0)
+            }
+    }
+
 
     // Method to get Categories and their respective hours
     fun getCategorySummary(callback: (List<Pair<String, Double>>) -> Unit) {
@@ -194,21 +239,5 @@ class FirestoreRepository(private val context: Context) {
         }
     }
 
-    // Fetch goals data for the past month
-    fun getGoalsData(username: String, callback: (List<Pair<String, Double>>) -> Unit) {
-        val userDocRef = db.collection("users").document(username)
-        userDocRef.collection("goalsData")
-            .get()
-            .addOnSuccessListener { querySnapshot ->
-                val goalsData = querySnapshot.documents.mapNotNull {
-                    val date = it.id
-                    val hours = it.getDouble("hours") ?: return@mapNotNull null
-                    date to hours
-                }
-                callback(goalsData)
-            }
-            .addOnFailureListener {
-                callback(emptyList())
-            }
-    }
+
 }

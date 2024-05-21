@@ -96,7 +96,7 @@ class TimeEntryActivity : AppCompatActivity() {
 
         // Set up click listener for btnSaveTimeEntry button
         binding.btnSaveTimeEntry.setOnClickListener {
-            saveTimeEntry()
+            saveTimeEntry(username)
         }
 
         // Set up click listener for btnSelectPhoto button
@@ -196,7 +196,7 @@ class TimeEntryActivity : AppCompatActivity() {
         }
     }
 
-    private fun saveTimeEntry() {
+    private fun saveTimeEntry(username: String) {
         // Retrieve data from EditText fields
         val date = binding.etDate.text.toString()
         val startTime = binding.etStartTime.text.toString()
@@ -216,7 +216,9 @@ class TimeEntryActivity : AppCompatActivity() {
             "description" to description,
             "note" to note,
             "category" to category,
-            "photo" to photo
+            "photo" to photo,
+            "hours" to calculateHours(startTime, endTime),
+            "username" to username
         )
 
         firestore.collection("time_entries")
@@ -228,6 +230,14 @@ class TimeEntryActivity : AppCompatActivity() {
             .addOnFailureListener { e ->
                 Toast.makeText(this, "Error saving time entry: ${e.message}", Toast.LENGTH_SHORT).show()
             }
+    }
+
+    private fun calculateHours(startTime: String, endTime: String): Double {
+        val sdf = SimpleDateFormat("HH:mm", Locale.getDefault())
+        val start = sdf.parse(startTime)
+        val end = sdf.parse(endTime)
+        val difference = end.time - start.time
+        return difference / (1000 * 60 * 60).toDouble()
     }
 
     private fun clearInputFields() {
