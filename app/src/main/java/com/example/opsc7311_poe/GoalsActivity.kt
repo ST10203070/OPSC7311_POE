@@ -25,8 +25,8 @@ class GoalsActivity : AppCompatActivity() {
     private lateinit var binding: ActivityGoalsBinding
     private lateinit var firestoreRepository: FirestoreRepository
     private lateinit var username: String
-    private lateinit var anyChartView: AnyChartView
-    private lateinit var cartesian: Cartesian
+    private var anyChartView: AnyChartView? = null
+    private var cartesian: Cartesian? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -43,8 +43,8 @@ class GoalsActivity : AppCompatActivity() {
         setupNavigation()
 
         // Initialize AnyChartView
-        anyChartView = findViewById(R.id.barChart)
-        setupBarChart()
+     //  anyChartView = findViewById(R.id.barChart)
+        updateBarChart()
     }
 
     override fun onResume() {
@@ -71,6 +71,7 @@ class GoalsActivity : AppCompatActivity() {
             firestoreRepository.saveUserGoals(username, minGoal, maxGoal, {
                 Toast.makeText(this, "Goals saved successfully", Toast.LENGTH_SHORT).show()
                 clearGoalFields()
+                clearChart()
                 updateBarChart()
             }, { exception ->
                 Toast.makeText(
@@ -101,77 +102,70 @@ class GoalsActivity : AppCompatActivity() {
         }
     }
 
-    private fun setupBarChart() {
-        cartesian = AnyChart.column()
-        cartesian.animation(true)
-
-        cartesian.title("Goals Analysis Over Past Month")
-
-        cartesian.yScale().minimum(0.0)
-
-        cartesian.tooltip()
-            .positionMode(TooltipPositionMode.POINT)
-            .anchor(Anchor.CENTER_BOTTOM)
-            .position(Position.CENTER_BOTTOM)
-            .offsetX(0.0)
-            .offsetY(5.0)
-
-        cartesian.interactivity().hoverMode(HoverMode.BY_X)
-
-        cartesian.xAxis(0).title("Date")
-        cartesian.yAxis(0).title("Hours")
-
-        anyChartView.setChart(cartesian)
-
-        // Load initial data
-        updateBarChart()
+    private fun clearChart() {
+        anyChartView?.clear()
     }
 
     private fun updateBarChart() {
+        // Initialize AnyChartView here
+        anyChartView = findViewById(R.id.barChart)
+
         firestoreRepository.getGoalsData(username) { goalsData, minGoal, maxGoal ->
+            // Create a new chart instance
+            cartesian = AnyChart.column()
+
+            cartesian?.animation(true)
+            cartesian?.title("Goals Analysis Over Past Month")
+            cartesian?.yScale()?.minimum(0.0)
+            cartesian?.tooltip()
+                ?.positionMode(TooltipPositionMode.POINT)
+                ?.anchor(Anchor.CENTER_BOTTOM)
+                ?.position(Position.CENTER_BOTTOM)
+                ?.offsetX(0.0)
+                ?.offsetY(5.0)
+            cartesian?.interactivity()?.hoverMode(HoverMode.BY_X)
+            cartesian?.xAxis(0)?.title("Date")
+            cartesian?.yAxis(0)?.title("Hours")
+
             val data: MutableList<DataEntry> = ArrayList()
             for ((date, hours) in goalsData) {
                 data.add(ValueDataEntry(date, hours))
             }
 
-            cartesian.removeAllSeries() // Ensure previous data is cleared
-
             // Create column series for the bar chart
-            val column: Column = cartesian.column(data)
-
-            column.tooltip()
-                .titleFormat("{%X}")
-                .position(Position.CENTER_BOTTOM)
-                .anchor(Anchor.CENTER_BOTTOM)
-                .offsetX(0.0)
-                .offsetY(5.0)
-                .format("{%Value}{groupsSeparator: }")
+            val column: Column? = cartesian?.column(data)
+            column?.tooltip()
+                ?.titleFormat("{%X}")
+                ?.position(Position.CENTER_BOTTOM)
+                ?.anchor(Anchor.CENTER_BOTTOM)
+                ?.offsetX(0.0)
+                ?.offsetY(5.0)
+                ?.format("{%Value}{groupsSeparator: }")
 
             // Calculate current date and date a month prior
             val endDate = Calendar.getInstance()
             val startDate = Calendar.getInstance().apply { add(Calendar.MONTH, -1) }
-
             val endDateString = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(endDate.time)
             val startDateString = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(startDate.time)
 
             // Add markers for min and max goals
-            val minGoalMarker = cartesian.lineMarker(0)
-            minGoalMarker.value(minGoal)
-            minGoalMarker.stroke("3 #00FF00")
+            val minGoalMarker = cartesian?.lineMarker(0)
+            minGoalMarker?.value(minGoal)
+            minGoalMarker?.stroke("3 #00FF00")
 
-            val maxGoalMarker = cartesian.lineMarker(1)
-            maxGoalMarker.value(maxGoal)
-            maxGoalMarker.stroke("3 #FF0000")
+            val maxGoalMarker = cartesian?.lineMarker(1)
+            maxGoalMarker?.value(maxGoal)
+            maxGoalMarker?.stroke("3 #FF0000")
 
             // Adjust y-axis range to fit the data
-            val yAxis = cartesian.yScale()
+            val yAxis = cartesian?.yScale()
             val maxYValue = maxOf(maxGoal, data.maxOfOrNull { (it as ValueDataEntry).getValue("value") as? Double ?: 0.0 } ?: 0.0)
-            yAxis.maximum(maxYValue + 1) // Adding a little padding above the maximum value
-            yAxis.minimum(0.0)
+            yAxis?.maximum(maxYValue + 1) // Adding a little padding above the maximum value
+            yAxis?.minimum(0.0)
 
-            // Ensure the chart is refreshed with the new data and lines
-            anyChartView.setChart(cartesian)
-            anyChartView.invalidate()
+            // Set the new chart instance to the AnyChartView
+            anyChartView?.setChart(cartesian)
+            anyChartView?.invalidate()
         }
     }
 }
