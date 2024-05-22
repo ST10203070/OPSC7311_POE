@@ -17,11 +17,15 @@ class DataVisualisationActivity : AppCompatActivity() {
     private lateinit var binding: ActivityDataVisualisationBinding
     private lateinit var timesheetEntriesAdapter: TimesheetEntriesAdapter
     private val timesheetEntries = mutableListOf<TimeEntry>()
+    private lateinit var username: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityDataVisualisationBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        // Retrieve the username from the Intent
+        username = intent.getStringExtra("USERNAME") ?: ""
 
         timesheetEntriesAdapter = TimesheetEntriesAdapter(timesheetEntries)
         binding.timeEntriesListView.adapter = timesheetEntriesAdapter
@@ -39,12 +43,16 @@ class DataVisualisationActivity : AppCompatActivity() {
 
         // Set goals click listener
         binding.buttonDailyGoals.setOnClickListener {
-            startActivity(Intent(this, GoalsActivity::class.java))
+            val intent = Intent(this, GoalsActivity::class.java)
+            intent.putExtra("USERNAME", username)
+            startActivity(intent)
         }
 
         // Time Entry click listener
         binding.buttonNewTimeEntry.setOnClickListener {
-            startActivity(Intent(this, TimeEntryActivity::class.java))
+            val intent = Intent(this, TimeEntryActivity::class.java)
+            intent.putExtra("USERNAME", username)
+            startActivity(intent)
         }
     }
 

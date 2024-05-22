@@ -83,8 +83,8 @@
 
     <com.anychart.AnyChartView
         android:id="@+id/barChart"
-        android:layout_width="409dp"
-        android:layout_height="299dp"
+        android:layout_width="437dp"
+        android:layout_height="295dp"
         android:layout_marginTop="32dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -113,6 +113,8 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintWidth_percent="0.5"
         android:layout_marginBottom="2dp" />
+
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>
 

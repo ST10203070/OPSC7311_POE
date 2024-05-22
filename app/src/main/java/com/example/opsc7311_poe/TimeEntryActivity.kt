@@ -126,6 +126,7 @@ class TimeEntryActivity : AppCompatActivity() {
 
         binding.btnDataVisualisation.setOnClickListener {
             val intent = Intent(this, DataVisualisationActivity::class.java)
+            intent.putExtra("USERNAME", username)
             startActivity(intent)
         }
     }

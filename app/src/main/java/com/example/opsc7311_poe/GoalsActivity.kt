@@ -3,6 +3,7 @@ package com.example.opsc7311_poe
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.anychart.AnyChart
@@ -44,6 +45,11 @@ class GoalsActivity : AppCompatActivity() {
         // Initialize AnyChartView
         anyChartView = findViewById(R.id.barChart)
         setupBarChart()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        updateBarChart()
     }
 
     private fun setupGoalSetting() {
@@ -90,6 +96,7 @@ class GoalsActivity : AppCompatActivity() {
 
         binding.btnDataVisualization.setOnClickListener {
             val intent = Intent(this, DataVisualisationActivity::class.java)
+            intent.putExtra("USERNAME", username)
             startActivity(intent)
         }
     }
@@ -121,13 +128,15 @@ class GoalsActivity : AppCompatActivity() {
     }
 
     private fun updateBarChart() {
-        firestoreRepository.getGoalsData(username) { goalsData ->
+        firestoreRepository.getGoalsData(username) { goalsData, minGoal, maxGoal ->
             val data: MutableList<DataEntry> = ArrayList()
             for ((date, hours) in goalsData) {
                 data.add(ValueDataEntry(date, hours))
             }
 
-            val cartesian: Cartesian = AnyChart.column()
+            cartesian.removeAllSeries() // Ensure previous data is cleared
+
+            // Create column series for the bar chart
             val column: Column = cartesian.column(data)
 
             column.tooltip()
@@ -145,25 +154,24 @@ class GoalsActivity : AppCompatActivity() {
             val endDateString = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(endDate.time)
             val startDateString = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(startDate.time)
 
-            // Fetch min and max goals
-            firestoreRepository.getUserGoals(username) { minGoal, maxGoal ->
-                // Add min and max goal lines
-                val minGoalLine = cartesian.line(listOf(
-                    ValueDataEntry(startDateString, minGoal),
-                    ValueDataEntry(endDateString, minGoal)
-                ))
-                minGoalLine.stroke("5 #00FF00")
+            // Add markers for min and max goals
+            val minGoalMarker = cartesian.lineMarker(0)
+            minGoalMarker.value(minGoal)
+            minGoalMarker.stroke("3 #00FF00")
 
-                val maxGoalLine = cartesian.line(listOf(
-                    ValueDataEntry(startDateString, maxGoal),
-                    ValueDataEntry(endDateString, maxGoal)
-                ))
-                maxGoalLine.stroke("5 #FF0000")
+            val maxGoalMarker = cartesian.lineMarker(1)
+            maxGoalMarker.value(maxGoal)
+            maxGoalMarker.stroke("3 #FF0000")
 
-                // Set up the chart with the data and lines
-                anyChartView.setChart(cartesian)
-                anyChartView.invalidate()
-            }
+            // Adjust y-axis range to fit the data
+            val yAxis = cartesian.yScale()
+            val maxYValue = maxOf(maxGoal, data.maxOfOrNull { (it as ValueDataEntry).getValue("value") as? Double ?: 0.0 } ?: 0.0)
+            yAxis.maximum(maxYValue + 1) // Adding a little padding above the maximum value
+            yAxis.minimum(0.0)
+
+            // Ensure the chart is refreshed with the new data and lines
+            anyChartView.setChart(cartesian)
+            anyChartView.invalidate()
         }
     }
 }

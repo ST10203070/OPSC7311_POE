@@ -160,14 +160,14 @@ class FirestoreRepository(private val context: Context) {
     }
 
     // Fetch goals data for the past month
-    fun getGoalsData(username: String, callback: (List<Pair<String, Double>>) -> Unit) {
+    fun getGoalsData(username: String, callback: (List<Pair<String, Double>>, Double, Double) -> Unit) {
+
         val userDocRef = db.collection("users").document(username)
         userDocRef.get()
             .addOnSuccessListener { documentSnapshot ->
                 if (documentSnapshot.exists()) {
                     val minDailyGoal = documentSnapshot.getDouble("minDailyGoal") ?: 0.0
                     val maxDailyGoal = documentSnapshot.getDouble("maxDailyGoal") ?: 0.0
-                    val timestamp = documentSnapshot.getLong("timestamp") ?: 0L
 
                     // Fetch time entries for the user
                     db.collection("time_entries")
@@ -177,47 +177,29 @@ class FirestoreRepository(private val context: Context) {
                             val goalsData = mutableListOf<Pair<String, Double>>()
                             val calendar = Calendar.getInstance()
                             calendar.add(Calendar.DAY_OF_MONTH, -30)
-                            for (i in 1..30) {
-                                calendar.add(Calendar.DAY_OF_MONTH, 1)
+
+                            for (i in 0..30) {
                                 val date = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(calendar.time)
                                 val hours = querySnapshot.documents
                                     .filter { it.getString("date") == date }
                                     .sumOf { it.getDouble("hours") ?: 0.0 }
                                 goalsData.add(date to hours)
+                                calendar.add(Calendar.DAY_OF_MONTH, 1) // Move to the next day
                             }
 
-                            Log.d("FirestoreRepository", "Goals Data: $goalsData") // Log data
-                            callback(goalsData)
+                            callback(goalsData, minDailyGoal, maxDailyGoal)
                         }
                         .addOnFailureListener {
-                            callback(emptyList())
+                            callback(emptyList(), minDailyGoal, maxDailyGoal)
                         }
                 } else {
-                    callback(emptyList())
+                    callback(emptyList(), 0.0, 0.0)
                 }
             }
             .addOnFailureListener {
-                callback(emptyList())
+                callback(emptyList(), 0.0, 0.0)
             }
     }
-
-    fun getUserGoals(userId: String, callback: (Double, Double) -> Unit) {
-        val userDocRef = db.collection("users").document(userId)
-        userDocRef.get()
-            .addOnSuccessListener { documentSnapshot ->
-                if (documentSnapshot.exists()) {
-                    val minGoal = documentSnapshot.getDouble("minDailyGoal") ?: 0.0
-                    val maxGoal = documentSnapshot.getDouble("maxDailyGoal") ?: 0.0
-                    callback(minGoal, maxGoal)
-                } else {
-                    callback(0.0, 0.0)
-                }
-            }
-            .addOnFailureListener {
-                callback(0.0, 0.0)
-            }
-    }
-
 
     // Method to get Categories and their respective hours
     fun getCategorySummary(callback: (List<Pair<String, Double>>) -> Unit) {
