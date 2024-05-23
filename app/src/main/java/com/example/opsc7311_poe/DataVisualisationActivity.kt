@@ -4,6 +4,7 @@ import android.app.AlertDialog
 import android.app.DatePickerDialog
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
@@ -21,14 +22,29 @@ import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import com.anychart.AnyChart
+import com.anychart.AnyChartView
+import com.anychart.chart.common.dataentry.DataEntry
+import com.anychart.chart.common.dataentry.ValueDataEntry
+import com.anychart.charts.Cartesian
+import com.anychart.core.cartesian.series.Base
+import com.anychart.core.cartesian.series.Column
+import com.anychart.enums.Anchor
+import com.anychart.data.Set
+import com.anychart.enums.HoverMode
+import com.anychart.enums.Position
+import com.anychart.enums.TooltipPositionMode
 import com.example.opsc7311_poe.databinding.ActivityDataVisualisationBinding
+import java.io.InputStream
 import java.text.SimpleDateFormat
 import java.util.*
 
 class DataVisualisationActivity : AppCompatActivity() {
     private lateinit var binding: ActivityDataVisualisationBinding
     private lateinit var timesheetEntriesAdapter: TimesheetEntriesAdapter
+    private lateinit var categoryHoursAdapter: CategoryHoursAdapter
     private val timesheetEntries = mutableListOf<TimeEntry>()
+    private val categoryHours = mutableListOf<Pair<String, Double>>()
     private lateinit var username: String
     private lateinit var firestoreRepository: FirestoreRepository
     private lateinit var photoPickerLauncher: ActivityResultLauncher<PickVisualMediaRequest>
@@ -51,7 +67,9 @@ class DataVisualisationActivity : AppCompatActivity() {
         username = intent.getStringExtra("USERNAME") ?: ""
 
         timesheetEntriesAdapter = TimesheetEntriesAdapter(timesheetEntries)
+        categoryHoursAdapter = CategoryHoursAdapter(categoryHours)
         binding.timeEntriesListView.adapter = timesheetEntriesAdapter
+        binding.categoryHoursListView.adapter = categoryHoursAdapter
 
         // Set up date picker button click listeners
         binding.startDateButton.setOnClickListener {
@@ -90,17 +108,13 @@ class DataVisualisationActivity : AppCompatActivity() {
     }
 
     private fun handlePhotoUri(uri: Uri) {
+        // Handle the URI (e.g., display the photo)
         Log.d("DataVisualisation", "Photo URI: $uri")
         val intent = Intent(Intent.ACTION_VIEW).apply {
             setDataAndType(uri, "image/*")
-            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
         }
-        try {
-            startActivity(intent)
-        } catch (e: Exception) {
-            Toast.makeText(this, "Unable to open photo", Toast.LENGTH_SHORT).show()
-            Log.e("DataVisualisation", "Error opening photo: ${e.message}")
-        }
+        startActivity(intent)
     }
 
     private fun requestMediaPermissions() {
@@ -135,6 +149,8 @@ class DataVisualisationActivity : AppCompatActivity() {
         if (isValidDate(startDate) && isValidDate(endDate)) {
             loadTimesheetEntries(startDate, endDate)
             loadCategorySummary(startDate, endDate)
+            loadDailyHoursChart(startDate, endDate) // Load chart data
+
         } else {
             Toast.makeText(this, "Please select valid start and end dates", Toast.LENGTH_SHORT).show()
         }
@@ -222,21 +238,29 @@ class DataVisualisationActivity : AppCompatActivity() {
                     Toast.makeText(parent.context, "No photo available", Toast.LENGTH_SHORT).show()
                 }
             }
-
-
             return view
         }
     }
 
     private fun showImageDialog(uri: Uri) {
-        val dialog = AlertDialog.Builder(this)
-        val imageView = ImageView(this)
-        imageView.setImageURI(uri)
-        dialog.setView(imageView)
-        dialog.setPositiveButton("Close") { dialogInterface, _ ->
-            dialogInterface.dismiss()
+        try {
+            val dialog = AlertDialog.Builder(this)
+            val imageView = ImageView(this)
+
+            // Load the image as a Bitmap
+            val inputStream: InputStream? = contentResolver.openInputStream(uri)
+            val bitmap = BitmapFactory.decodeStream(inputStream)
+            imageView.setImageBitmap(bitmap)
+
+            dialog.setView(imageView)
+            dialog.setPositiveButton("Close") { dialogInterface, _ ->
+                dialogInterface.dismiss()
+            }
+            dialog.show()
+        } catch (e: Exception) {
+            Toast.makeText(this, "Unable to load image", Toast.LENGTH_SHORT).show()
+            Log.e("DataVisualisation", "Error loading image: ${e.message}")
         }
-        dialog.show()
     }
 
     private fun loadTimesheetEntries(startDate: String, endDate: String) {
@@ -255,13 +279,129 @@ class DataVisualisationActivity : AppCompatActivity() {
     }
 
     private fun loadCategorySummary(startDate: String, endDate: String) {
-        // Add dummy data for now
-        binding.category1.text = "Category 1      2"
-        binding.category2.text = "Category 2      3"
-        binding.category3.text = "Category 3      4"
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+        val startDateParsed = dateFormat.parse(startDate)
+        val endDateParsed = dateFormat.parse(endDate)
 
-        // Update chart placeholder
-        binding.chartImageView.setImageResource(R.drawable.logo/*ic_chart_placeholder*/)
+        if (startDateParsed != null && endDateParsed != null) {
+            firestoreRepository.getTimeEntriesByDateRange(username, startDateParsed, endDateParsed) { entries ->
+                val categoryHours = HashMap<String, Double>()
+
+                // Calculate hours spent on each category
+                for (entry in entries) {
+                    val hours = entry.hours ?: 0.0
+                    categoryHours[entry.category] = categoryHours.getOrDefault(entry.category, 0.0) + hours
+                }
+
+                // Update the UI with the calculated hours
+                updateCategorySummaryUI(categoryHours)
+            }
+        }
+    }
+
+    private fun updateCategorySummaryUI(categoryHoursMap: HashMap<String, Double>) {
+        categoryHours.clear()
+        categoryHours.addAll(categoryHoursMap.entries.map { it.toPair() })
+        categoryHoursAdapter.notifyDataSetChanged()
+    }
+
+    inner class CategoryHoursAdapter(private val categoryHours: List<Pair<String, Double>>) : BaseAdapter() {
+        override fun getCount(): Int {
+            return categoryHours.size
+        }
+
+        override fun getItem(position: Int): Any {
+            return categoryHours[position]
+        }
+
+        override fun getItemId(position: Int): Long {
+            return position.toLong()
+        }
+
+        override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
+            val view = convertView ?: LayoutInflater.from(parent.context)
+                .inflate(android.R.layout.simple_list_item_2, parent, false)
+
+            val categoryTextView = view.findViewById<TextView>(android.R.id.text1)
+            val hoursTextView = view.findViewById<TextView>(android.R.id.text2)
+
+            val (category, hours) = getItem(position) as Pair<String, Double>
+            categoryTextView.text = category
+            hoursTextView.text = "$hours hours"
+
+            return view
+        }
+    }
+
+    private fun loadDailyHoursChart(startDate: String, endDate: String) {
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+        val startDateParsed = dateFormat.parse(startDate)
+        val endDateParsed = dateFormat.parse(endDate)
+
+        if (startDateParsed != null && endDateParsed != null) {
+            firestoreRepository.getTimeEntriesByDateRange(username, startDateParsed, endDateParsed) { entries ->
+                firestoreRepository.getGoalsData(username) { _, minGoal, maxGoal ->
+                    val dailyHours = mutableMapOf<String, Double>()
+
+                    // Calculate hours worked each day
+                    for (entry in entries) {
+                        val hours = entry.hours ?: 0.0
+                        dailyHours[entry.date] = dailyHours.getOrDefault(entry.date, 0.0) + hours
+                    }
+
+                    // Prepare data for the chart
+                    val data: MutableList<DataEntry> = dailyHours.map { ValueDataEntry(it.key, it.value) }.toMutableList()
+
+                    // Initialize AnyChartView here
+                    val anyChartView = findViewById<AnyChartView>(R.id.any_chart_view)
+                    val cartesian: Cartesian = AnyChart.column()
+
+                    val column: Column = cartesian.column(data)
+
+                    cartesian.animation(true)
+                    cartesian.title("Daily Hours Worked")
+
+                    column.tooltip()
+                        .titleFormat("{%X}")
+                        .position(Position.CENTER_BOTTOM)
+                        .anchor(Anchor.CENTER_BOTTOM)
+                        .offsetX(0.0)
+                        .offsetY(5.0)
+                        .format("{%Value}{groupsSeparator: } hours")
+
+                    cartesian.yScale().minimum(0.0)
+                    cartesian.yAxis(0).labels().format("{%Value}{groupsSeparator: } hours")
+                    cartesian.tooltip().positionMode(TooltipPositionMode.POINT)
+                    cartesian.interactivity().hoverMode(HoverMode.BY_X)
+                    cartesian.xAxis(0).title("Date")
+                    cartesian.yAxis(0).title("Hours Worked")
+
+                    // Add markers for min and max goals
+                    val minGoalMarker = cartesian.lineMarker(0)
+                    minGoalMarker.value(minGoal)
+                    minGoalMarker.stroke("3 #00FF00")
+
+                    val maxGoalMarker = cartesian.lineMarker(1)
+                    maxGoalMarker.value(maxGoal)
+                    maxGoalMarker.stroke("3 #FF0000")
+
+                    // Adjust y-axis range to fit the data
+                    val yAxis = cartesian.yScale()
+                    val maxYValue = maxOf(maxGoal, data.maxOfOrNull { (it as ValueDataEntry).getValue("value") as? Double ?: 0.0 } ?: 0.0)
+                    yAxis.maximum(maxYValue + 1) // Adding a little padding above the maximum value
+
+                    // Set x-axis scale to match the filtered date range
+/*                    val ordinalScale = AnyChart.scales().ordinal()
+                    ordinalScale.minimum(dateFormat.format(startDateParsed))
+                    ordinalScale.maximum(dateFormat.format(endDateParsed))
+                    cartesian.xScale(ordinalScale)*/
+
+                    // Set the new chart instance to the AnyChartView
+                    anyChartView.setChart(cartesian)
+                    anyChartView.invalidate()
+                }
+            }
+        }
     }
 }
 

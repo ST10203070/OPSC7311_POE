@@ -122,36 +122,11 @@
                 android:textSize="16sp"
                 android:layout_marginBottom="8dp" />
 
-            <LinearLayout
+            <ListView
+                android:id="@+id/categoryHoursListView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:layout_marginBottom="16dp">
-
-                <TextView
-                    android:id="@+id/category1"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Category 1      0"
-                    android:textSize="16sp"
-                    android:layout_marginBottom="8dp" />
-
-                <TextView
-                    android:id="@+id/category2"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Category 2      0"
-                    android:textSize="16sp"
-                    android:layout_marginBottom="8dp" />
-
-                <TextView
-                    android:id="@+id/category3"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Category 3      0"
-                    android:textSize="16sp"
-                    android:layout_marginBottom="16dp" />
-            </LinearLayout>
+                android:layout_marginBottom="16dp" />
 
             <!-- Hours Spent Working Filtered by Date (Chart) -->
             <TextView
@@ -162,14 +137,13 @@
                 android:textSize="16sp"
                 android:layout_marginBottom="8dp" />
 
-            <!-- Placeholder for the chart (use an ImageView for simplicity) -->
-            <ImageView
-                android:id="@+id/chartImageView"
+            <!-- Placeholder for the chart -->
+            <com.anychart.AnyChartView
+                android:id="@+id/any_chart_view"
                 android:layout_width="match_parent"
-                android:layout_height="200dp"
+                android:layout_height="284dp"
                 android:layout_marginBottom="16dp"
-                android:contentDescription="Chart Placeholder"
-                android:src="@drawable/logo" />
+                android:contentDescription="Chart Placeholder" />
         </LinearLayout>
     </ScrollView>
 
