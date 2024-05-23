@@ -52,7 +52,7 @@
                     android:id="@+id/startDateValue"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="                                                                "
+                    android:text="2024-05-01"
                     android:textSize="16sp"
                     android:textColor="@android:color/holo_blue_dark" />
 
@@ -78,24 +78,24 @@
                     android:layout_height="wrap_content"
                     android:text="End Date"
                     android:textSize="16sp"
-                    android:layout_marginEnd="32dp" />
+                    android:layout_marginEnd="23dp" />
 
                 <TextView
                     android:id="@+id/endDateValue"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="                                                              "
-                    android:textSize="16sp"
-                    android:textColor="@android:color/holo_blue_dark" />
+                    android:text="2024-05-23"
+                    android:textColor="@android:color/holo_blue_dark"
+                    android:textSize="16sp" />
 
                 <ImageButton
                     android:id="@+id/endDateButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:src="@android:drawable/ic_menu_today"
-                    android:contentDescription="Select End Date"
+                    android:layout_marginStart="10dp"
                     android:background="?attr/selectableItemBackground"
-                    android:layout_marginStart="8dp" />
+                    android:contentDescription="Select End Date"
+                    android:src="@android:drawable/ic_menu_today" />
             </LinearLayout>
 
             <!-- Time Entries Filtered by Date -->

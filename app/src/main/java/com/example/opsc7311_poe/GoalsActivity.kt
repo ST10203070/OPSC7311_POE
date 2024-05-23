@@ -43,8 +43,7 @@ class GoalsActivity : AppCompatActivity() {
         setupNavigation()
 
         // Initialize AnyChartView
-     //  anyChartView = findViewById(R.id.barChart)
-        updateBarChart()
+        anyChartView = findViewById(R.id.barChart)
     }
 
     override fun onResume() {

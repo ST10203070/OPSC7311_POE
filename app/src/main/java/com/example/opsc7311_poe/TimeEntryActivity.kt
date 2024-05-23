@@ -12,6 +12,7 @@ import android.widget.ArrayAdapter
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import com.example.opsc7311_poe.databinding.ActivityTimeEntryBinding
@@ -31,7 +32,7 @@ class TimeEntryActivity : AppCompatActivity() {
     private var endTimeInMillis: Long = 0
     private val categories = ArrayList<String>()
     private val fireStoreRepository = FirestoreRepository(this)
-    private lateinit var galleryLauncher: ActivityResultLauncher<Intent>
+    private lateinit var photoPickerLauncher: ActivityResultLauncher<PickVisualMediaRequest>
     private lateinit var username: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -47,13 +48,10 @@ class TimeEntryActivity : AppCompatActivity() {
         binding.etDate.text = currentDate
 
         // Register the launcher for gallery intent
-        galleryLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            if (result.resultCode == RESULT_OK && result.data != null) {
-                val selectedImageUri: Uri? = result.data?.data
-                if (selectedImageUri != null) {
-                    selectedPhotoPath = selectedImageUri.toString()
-                    Toast.makeText(this, "Photo selected successfully", Toast.LENGTH_SHORT).show()
-                }
+        photoPickerLauncher = registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
+            uri?.let {
+                selectedPhotoPath = it.toString()
+                Toast.makeText(this, "Photo selected successfully", Toast.LENGTH_SHORT).show()
             }
         }
 
@@ -101,7 +99,7 @@ class TimeEntryActivity : AppCompatActivity() {
 
         // Set up click listener for btnSelectPhoto button
         binding.btnSelectPhoto.setOnClickListener {
-            openGallery()
+            openPhotoPicker()
         }
 
         //Navigation for Daily Goals and Data Visualisation buttons
@@ -205,9 +203,7 @@ class TimeEntryActivity : AppCompatActivity() {
         val description = binding.etDescription.text.toString()
         val note = binding.etNote.text.toString()
         val category = binding.spinnerCategory.selectedItem?.toString() ?: ""
-        val photo = selectedPhotoPath ?: ""
-
-        // Validate data (you can add your validation logic here)
+        val photo = selectedPhotoPath?.toString() ?: ""
 
         // Save time entry to Firestore
         val timeEntry = hashMapOf(
@@ -252,10 +248,8 @@ class TimeEntryActivity : AppCompatActivity() {
     }
 
 
-    private fun openGallery() {
-        val intent = Intent(Intent.ACTION_PICK)
-        intent.type = "image/*"
-        galleryLauncher.launch(intent)
+    private fun openPhotoPicker() {
+        photoPickerLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
     }
 
     private fun setupCategorySpinner() {

@@ -7,6 +7,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
 import java.text.SimpleDateFormat
 import java.util.Calendar
+import java.util.Date
 import java.util.Locale
 
 class FirestoreRepository(private val context: Context) {
@@ -200,6 +201,24 @@ class FirestoreRepository(private val context: Context) {
                 callback(emptyList(), 0.0, 0.0)
             }
     }
+
+    // Fetch time entries for a user filtered by date range
+    fun getTimeEntriesByDateRange(username: String, startDate: Date, endDate: Date, callback: (List<TimeEntry>) -> Unit) {
+        db.collection("time_entries")
+            .whereEqualTo("username", username)
+            .whereGreaterThanOrEqualTo("date", SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(startDate))
+            .whereLessThanOrEqualTo("date", SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(endDate))
+            .get()
+            .addOnSuccessListener { querySnapshot ->
+                val timeEntries = querySnapshot.documents.mapNotNull { it.toObject(TimeEntry::class.java) }
+                callback(timeEntries)
+            }
+            .addOnFailureListener { exception ->
+                Log.e("FirestoreRepository", "Error getting time entries by date range", exception)
+                callback(emptyList())
+            }
+    }
+
 
     // Method to get Categories and their respective hours
     fun getCategorySummary(callback: (List<Pair<String, Double>>) -> Unit) {
