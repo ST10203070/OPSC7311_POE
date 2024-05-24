@@ -73,7 +73,6 @@ dependencies {
 
     // Import for AndroidChart library
     implementation("com.github.AnyChart:AnyChart-Android:1.1.5")
-
     // Add Firebase BoM
     implementation(platform("com.google.firebase:firebase-bom:33.0.0"))
 

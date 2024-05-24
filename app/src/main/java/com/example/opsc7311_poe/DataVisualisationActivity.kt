@@ -8,7 +8,6 @@ import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
-import androidx.appcompat.app.AppCompatActivity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -20,6 +19,7 @@ import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.anychart.AnyChart
@@ -27,17 +27,17 @@ import com.anychart.AnyChartView
 import com.anychart.chart.common.dataentry.DataEntry
 import com.anychart.chart.common.dataentry.ValueDataEntry
 import com.anychart.charts.Cartesian
-import com.anychart.core.cartesian.series.Base
 import com.anychart.core.cartesian.series.Column
 import com.anychart.enums.Anchor
-import com.anychart.data.Set
 import com.anychart.enums.HoverMode
 import com.anychart.enums.Position
 import com.anychart.enums.TooltipPositionMode
+import com.anychart.scales.DateTime
 import com.example.opsc7311_poe.databinding.ActivityDataVisualisationBinding
 import java.io.InputStream
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Calendar
+import java.util.Locale
 
 class DataVisualisationActivity : AppCompatActivity() {
     private lateinit var binding: ActivityDataVisualisationBinding
@@ -391,10 +391,22 @@ class DataVisualisationActivity : AppCompatActivity() {
                     yAxis.maximum(maxYValue + 1) // Adding a little padding above the maximum value
 
                     // Set x-axis scale to match the filtered date range
-/*                    val ordinalScale = AnyChart.scales().ordinal()
-                    ordinalScale.minimum(dateFormat.format(startDateParsed))
-                    ordinalScale.maximum(dateFormat.format(endDateParsed))
-                    cartesian.xScale(ordinalScale)*/
+                    /*val ordinalScale = Ordinal.instantiate()
+                    cartesian.xScale(ordinalScale)
+
+                    // Set the x-axis range to match the filtered date range
+                    val startDateNumeric = startDateParsed.time.toDouble()
+                    val endDateNumeric = endDateParsed.time.toDouble()
+                    ordinalScale.set("minimum", startDateNumeric)
+                    ordinalScale.set("maximum", endDateNumeric)*/
+
+                    // Use dateTime scale for x-axis
+                    val dateTimeScale = DateTime.instantiate()
+                    cartesian.xScale(dateTimeScale)
+
+                    // Set the x-axis range to match the filtered date range
+                    dateTimeScale.minimum(startDateParsed.time)
+                    dateTimeScale.maximum(endDateParsed.time)
 
                     // Set the new chart instance to the AnyChartView
                     anyChartView.setChart(cartesian)
