@@ -52,7 +52,7 @@
                     android:id="@+id/startDateValue"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="2024-05-01"
+                    android:text=" "
                     android:textSize="16sp"
                     android:textColor="@android:color/holo_blue_dark" />
 
@@ -84,7 +84,7 @@
                     android:id="@+id/endDateValue"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="2024-05-23"
+                    android:text=" "
                     android:textColor="@android:color/holo_blue_dark"
                     android:textSize="16sp" />
 

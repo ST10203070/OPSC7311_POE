@@ -339,6 +339,8 @@ class DataVisualisationActivity : AppCompatActivity() {
         val endDateParsed = dateFormat.parse(endDate)
 
         if (startDateParsed != null && endDateParsed != null) {
+            Log.d("DataVisualisation", "Parsed start date: $startDateParsed, end date: $endDateParsed")
+
             firestoreRepository.getTimeEntriesByDateRange(username, startDateParsed, endDateParsed) { entries ->
                 firestoreRepository.getGoalsData(username) { _, minGoal, maxGoal ->
                     val dailyHours = mutableMapOf<String, Double>()
@@ -354,6 +356,11 @@ class DataVisualisationActivity : AppCompatActivity() {
 
                     // Initialize AnyChartView here
                     val anyChartView = findViewById<AnyChartView>(R.id.any_chart_view)
+
+                    // Clear the existing chart
+                    anyChartView.clear()
+
+                    // Create a new Cartesian chart
                     val cartesian: Cartesian = AnyChart.column()
 
                     val column: Column = cartesian.column(data)
@@ -390,27 +397,31 @@ class DataVisualisationActivity : AppCompatActivity() {
                     val maxYValue = maxOf(maxGoal, data.maxOfOrNull { (it as ValueDataEntry).getValue("value") as? Double ?: 0.0 } ?: 0.0)
                     yAxis.maximum(maxYValue + 1) // Adding a little padding above the maximum value
 
-                    // Set x-axis scale to match the filtered date range
-                    /*val ordinalScale = Ordinal.instantiate()
-                    cartesian.xScale(ordinalScale)
-
-                    // Set the x-axis range to match the filtered date range
-                    val startDateNumeric = startDateParsed.time.toDouble()
-                    val endDateNumeric = endDateParsed.time.toDouble()
-                    ordinalScale.set("minimum", startDateNumeric)
-                    ordinalScale.set("maximum", endDateNumeric)*/
-
                     // Use dateTime scale for x-axis
                     val dateTimeScale = DateTime.instantiate()
                     cartesian.xScale(dateTimeScale)
 
                     // Set the x-axis range to match the filtered date range
-                    dateTimeScale.minimum(startDateParsed.time)
-                    dateTimeScale.maximum(endDateParsed.time)
+                     dateTimeScale.minimum(startDateParsed.time)
+                     dateTimeScale.maximum(endDateParsed.time)
+
+                    Log.d("DataVisualisation", "Setting x-axis range: ${startDateParsed.time} to ${endDateParsed.time}")
+
+
+                    /*                    val xScale = cartesian.xScale() as? Linear
+
+                                        if (xScale != null) {
+                                            // The cast was successful, use the xScale object
+                                            xScale.minimum(startDateParsed.time.toDouble())
+                                            xScale.maximum(endDateParsed.time.toDouble())
+                                        } else {
+                                            // The cast failed, handle the case where the object is not of type Linear
+                                        }*/
 
                     // Set the new chart instance to the AnyChartView
                     anyChartView.setChart(cartesian)
                     anyChartView.invalidate()
+                    anyChartView.refreshDrawableState()
                 }
             }
         }
