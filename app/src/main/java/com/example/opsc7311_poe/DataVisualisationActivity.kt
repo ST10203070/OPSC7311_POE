@@ -50,7 +50,7 @@ class DataVisualisationActivity : AppCompatActivity() {
     private lateinit var photoPickerLauncher: ActivityResultLauncher<PickVisualMediaRequest>
 
     companion object {
-        private const val READ_MEDIA_PERMISSION_REQUEST_CODE = 1001
+        private const val READ_EXTERNAL_STORAGE_PERMISSION_REQUEST_CODE = 1001
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -58,7 +58,8 @@ class DataVisualisationActivity : AppCompatActivity() {
         binding = ActivityDataVisualisationBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        requestMediaPermissions()  // Request permissions at the start
+        // Request permissions at the start
+        requestMediaPermissions()
 
         // Initialize FirestoreRepository
         firestoreRepository = FirestoreRepository(this)
@@ -118,11 +119,11 @@ class DataVisualisationActivity : AppCompatActivity() {
     }
 
     private fun requestMediaPermissions() {
-        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.READ_MEDIA_IMAGES) != PackageManager.PERMISSION_GRANTED) {
+        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(
                 this,
-                arrayOf(android.Manifest.permission.READ_MEDIA_IMAGES),
-                READ_MEDIA_PERMISSION_REQUEST_CODE
+                arrayOf(android.Manifest.permission.READ_EXTERNAL_STORAGE),
+                READ_EXTERNAL_STORAGE_PERMISSION_REQUEST_CODE
             )
         }
     }
@@ -130,7 +131,7 @@ class DataVisualisationActivity : AppCompatActivity() {
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         when (requestCode) {
-            READ_MEDIA_PERMISSION_REQUEST_CODE -> {
+            READ_EXTERNAL_STORAGE_PERMISSION_REQUEST_CODE -> {
                 if ((grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
                     Toast.makeText(this, "Permission granted", Toast.LENGTH_SHORT).show()
                 } else {

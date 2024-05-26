@@ -2,8 +2,6 @@ package com.example.opsc7311_poe
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
-import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.anychart.AnyChart
@@ -165,6 +163,7 @@ class GoalsActivity : AppCompatActivity() {
             // Set the new chart instance to the AnyChartView
             anyChartView?.setChart(cartesian)
             anyChartView?.invalidate()
+            anyChartView?.refreshDrawableState()
         }
     }
 }
