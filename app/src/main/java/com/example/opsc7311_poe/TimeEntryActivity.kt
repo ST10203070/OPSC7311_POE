@@ -3,7 +3,6 @@ package com.example.opsc7311_poe
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
 import android.view.View
@@ -18,8 +17,9 @@ import androidx.appcompat.app.AppCompatActivity
 import com.example.opsc7311_poe.databinding.ActivityTimeEntryBinding
 import com.google.firebase.firestore.FirebaseFirestore
 import java.text.SimpleDateFormat
-import java.util.*
-import kotlin.collections.ArrayList
+import java.util.Calendar
+import java.util.Date
+import java.util.Locale
 
 class TimeEntryActivity : AppCompatActivity() {
     private lateinit var binding: ActivityTimeEntryBinding
@@ -253,8 +253,7 @@ class TimeEntryActivity : AppCompatActivity() {
     }
 
     private fun setupCategorySpinner() {
-        val userId = getCurrentUserId()
-        fireStoreRepository.getCategories(userId) { categories ->
+        fireStoreRepository.getCategories(username) { categories ->
             val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, categories.map { it.name })
             adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
             binding.spinnerCategory.adapter = adapter
@@ -274,9 +273,8 @@ class TimeEntryActivity : AppCompatActivity() {
     private fun addCategory() {
         val newCategory = binding.etNewCategory.text.toString()
         if (newCategory.isNotEmpty()) {
-            val userId = getCurrentUserId()
             val category = Category(id = generateCategoryId(), name = newCategory) // Ensure to generate a unique ID
-            fireStoreRepository.addCategory(userId, category) {
+            fireStoreRepository.addCategory(username, category) {
                 binding.etNewCategory.text.clear()
                 setupCategorySpinner()
                 Toast.makeText(this, "Category added successfully", Toast.LENGTH_SHORT).show()

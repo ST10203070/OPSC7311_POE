@@ -83,8 +83,8 @@
 
     <com.anychart.AnyChartView
         android:id="@+id/barChart"
-        android:layout_width="437dp"
-        android:layout_height="295dp"
+        android:layout_width="343dp"
+        android:layout_height="279dp"
         android:layout_marginTop="32dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
